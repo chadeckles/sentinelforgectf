@@ -1,0 +1,97 @@
+# Dependencies
+node_modules/
+/.pnp
+.pnp.js
+
+# Testing
+/coverage
+*.log
+
+# Production builds
+/build
+/dist
+/.next/
+/out/
+
+# Environment variables
+.env
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
+*.env
+!.env.example
+
+# Terraform - exclude entire directory with state and configs
+terraform/
+**/.terraform/
+**/.terraform.lock.hcl
+*.tfstate
+*.tfstate.*
+*.tfvars
+!terraform.tfvars.example
+crash.log
+crash.*.log
+override.tf
+override.tf.json
+*_override.tf
+*_override.tf.json
+.terraformrc
+terraform.rc
+
+# Sensitive Terraform outputs
+terraform-outputs.json
+
+# IDEs
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+.DS_Store
+
+# Logs
+logs
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+lerna-debug.log*
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Databases
+*.sqlite
+*.db
+
+# Certificates and keys
+*.pem
+*.key
+*.cert
+*.crt
+*.p12
+*.pfx
+
+# Azure
+.azure/
+
+# Secrets
+secrets.yaml
+secrets.json
+*.secret
+
+# Flag master lists (NEVER COMMIT THESE!)
+flag-master-list.md
+flags.txt
+**/flags/**
+challenge-flags.*
+
+# Private maintenance documentation
+MAINTENANCE_GUIDE.md
+
+# Backup files
+*.bak
+*.backup

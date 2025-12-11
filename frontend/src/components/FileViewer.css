@@ -1,0 +1,342 @@
+.file-viewer-container {
+  background: rgba(10, 10, 15, 0.95);
+  border: 1px solid rgba(0, 240, 255, 0.3);
+  border-radius: 8px;
+  overflow: hidden;
+  margin: 1.5rem 0;
+  box-shadow: 0 4px 20px rgba(0, 240, 255, 0.2);
+  transition: all 0.3s ease;
+}
+
+.file-viewer-container:hover {
+  border-color: rgba(0, 240, 255, 0.5);
+  box-shadow: 0 4px 30px rgba(0, 240, 255, 0.3);
+}
+
+.file-viewer-header {
+  background: rgba(20, 20, 30, 0.95);
+  padding: 1rem 1.5rem;
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  border-bottom: 1px solid rgba(0, 240, 255, 0.2);
+  color: var(--neon-cyan);
+  font-weight: 600;
+  font-size: 1rem;
+}
+
+.file-viewer-body {
+  display: grid;
+  grid-template-columns: 250px 1fr;
+  height: 500px;
+  max-height: 600px;
+  overflow: hidden;
+}
+
+/* File Tree Sidebar */
+.file-tree {
+  background: rgba(15, 15, 20, 0.98);
+  border-right: 1px solid rgba(0, 240, 255, 0.2);
+  display: flex;
+  flex-direction: column;
+  overflow-y: auto;
+  height: 100%;
+}
+
+.file-tree::-webkit-scrollbar {
+  width: 6px;
+}
+
+.file-tree::-webkit-scrollbar-track {
+  background: rgba(0, 0, 0, 0.3);
+}
+
+.file-tree::-webkit-scrollbar-thumb {
+  background: rgba(0, 240, 255, 0.3);
+  border-radius: 3px;
+}
+
+.file-tree-header {
+  padding: 0.75rem 1rem;
+  font-size: 0.75rem;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  color: rgba(255, 255, 255, 0.5);
+  font-weight: 600;
+  border-bottom: 1px solid rgba(0, 240, 255, 0.1);
+}
+
+.file-tree-list {
+  flex: 1;
+  padding: 0.5rem 0;
+}
+
+.file-tree-item-container {
+  margin: 0;
+}
+
+.file-tree-item {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.5rem 1rem;
+  cursor: pointer;
+  color: rgba(255, 255, 255, 0.8);
+  font-size: 0.9rem;
+  font-family: 'Courier New', monospace;
+  transition: all 0.2s ease;
+  user-select: none;
+}
+
+.file-tree-item:hover {
+  background: rgba(0, 240, 255, 0.1);
+  color: var(--neon-cyan);
+}
+
+.file-tree-item.active {
+  background: rgba(0, 240, 255, 0.15);
+  color: var(--neon-cyan);
+  border-left: 3px solid var(--neon-cyan);
+}
+
+.file-tree-item.folder {
+  font-weight: 600;
+}
+
+.file-tree-item .file-icon {
+  color: rgba(255, 255, 255, 0.6);
+  flex-shrink: 0;
+}
+
+.file-tree-item.active .file-icon {
+  color: var(--neon-cyan);
+}
+
+.file-name {
+  flex: 1;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.file-tree-children {
+  margin-left: 1rem;
+  border-left: 1px solid rgba(0, 240, 255, 0.2);
+}
+
+.file-tree-item.child {
+  padding-left: 1.5rem;
+  font-size: 0.85rem;
+}
+
+/* File Content Area */
+.file-content {
+  display: flex;
+  flex-direction: column;
+  background: rgba(5, 5, 10, 0.98);
+  height: 100%;
+  overflow: hidden;
+}
+
+.file-content-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 1rem 1.5rem;
+  border-bottom: 1px solid rgba(0, 240, 255, 0.2);
+  background: rgba(15, 15, 20, 0.95);
+  flex-shrink: 0;
+}
+
+.file-info {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.file-icon-large {
+  font-size: 1.5rem;
+}
+
+.file-name-display {
+  font-family: 'Courier New', monospace;
+  color: var(--neon-cyan);
+  font-weight: 600;
+  font-size: 0.95rem;
+}
+
+.file-language {
+  padding: 0.25rem 0.75rem;
+  background: rgba(255, 0, 255, 0.15);
+  border: 1px solid rgba(255, 0, 255, 0.3);
+  border-radius: 12px;
+  font-size: 0.75rem;
+  color: var(--neon-magenta);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.copy-file-button {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.5rem 1rem;
+  background: rgba(0, 240, 255, 0.1);
+  border: 1px solid rgba(0, 240, 255, 0.3);
+  border-radius: 6px;
+  color: var(--neon-cyan);
+  font-size: 0.85rem;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  font-weight: 500;
+}
+
+.copy-file-button:hover {
+  background: rgba(0, 240, 255, 0.2);
+  border-color: rgba(0, 240, 255, 0.5);
+  transform: translateY(-1px);
+}
+
+.copy-file-button:active {
+  transform: translateY(0);
+}
+
+.file-content-body {
+  flex: 1;
+  overflow-y: auto;
+  overflow-x: auto;
+  padding: 1.5rem;
+  min-height: 0;
+}
+
+.file-content-body::-webkit-scrollbar {
+  width: 10px;
+  height: 10px;
+}
+
+.file-content-body::-webkit-scrollbar-track {
+  background: rgba(0, 0, 0, 0.3);
+}
+
+.file-content-body::-webkit-scrollbar-thumb {
+  background: rgba(0, 240, 255, 0.4);
+  border-radius: 5px;
+}
+
+.file-content-body::-webkit-scrollbar-thumb:hover {
+  background: rgba(0, 240, 255, 0.6);
+}
+
+.file-content-body::-webkit-scrollbar-corner {
+  background: rgba(0, 0, 0, 0.3);
+}
+
+.file-content-body pre {
+  margin: 0;
+  font-family: 'Courier New', monospace;
+  font-size: 0.9rem;
+  line-height: 1.6;
+  min-width: max-content;
+}
+
+.file-content-body code {
+  color: rgba(255, 255, 255, 0.9);
+  white-space: pre;
+  display: block;
+  padding-bottom: 1rem;
+}
+
+/* Syntax highlighting hints */
+.file-content-body code.terraform,
+.file-content-body code.hcl {
+  color: #e0e0ff;
+}
+
+.file-content-body code.yaml,
+.file-content-body code.yml {
+  color: #ffe0e0;
+}
+
+.file-content-body code.json {
+  color: #e0ffe0;
+}
+
+.file-content-body code.javascript,
+.file-content-body code.python,
+.file-content-body code.shell {
+  color: #ffffcc;
+}
+
+.file-content-empty {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  height: 100%;
+  color: rgba(255, 255, 255, 0.4);
+  gap: 1rem;
+}
+
+.file-content-empty svg {
+  opacity: 0.3;
+}
+
+.file-content-empty p {
+  font-size: 0.95rem;
+  margin: 0;
+}
+
+/* Animation */
+@keyframes slideIn {
+  from {
+    opacity: 0;
+    transform: translateX(-10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+.file-content-body {
+  animation: slideIn 0.3s ease-out;
+}
+
+/* Responsive Design */
+@media (max-width: 968px) {
+  .file-viewer-body {
+    grid-template-columns: 180px 1fr;
+    height: 450px;
+  }
+
+  .file-tree-item {
+    font-size: 0.85rem;
+    padding: 0.4rem 0.75rem;
+  }
+
+  .file-content-body {
+    padding: 1rem;
+  }
+}
+
+@media (max-width: 640px) {
+  .file-viewer-body {
+    grid-template-columns: 1fr;
+    grid-template-rows: 150px 1fr;
+    height: 500px;
+  }
+
+  .file-tree {
+    max-height: 150px;
+    border-right: none;
+    border-bottom: 1px solid rgba(0, 240, 255, 0.2);
+  }
+
+  .file-content-body {
+    padding: 1rem;
+  }
+
+  .file-content-body pre {
+    font-size: 0.8rem;
+  }
+}

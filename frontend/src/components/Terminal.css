@@ -1,0 +1,388 @@
+.terminal-container {
+  background: rgba(0, 0, 0, 0.9);
+  border: 1px solid rgba(0, 240, 255, 0.3);
+  border-radius: 8px;
+  overflow: hidden;
+  font-family: 'Courier New', monospace;
+  margin: 1.5rem 0;
+  box-shadow: 0 4px 20px rgba(0, 240, 255, 0.2);
+  transition: all 0.3s ease;
+  max-width: 100%;
+  position: relative;
+  z-index: 1;
+}
+
+.terminal-container:hover {
+  border-color: rgba(0, 240, 255, 0.5);
+  box-shadow: 0 4px 30px rgba(0, 240, 255, 0.3);
+}
+
+.terminal-header {
+  background: rgba(20, 20, 30, 0.95);
+  padding: 0.75rem 1rem;
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  border-bottom: 1px solid rgba(0, 240, 255, 0.2);
+  flex-wrap: wrap;
+}
+
+.terminal-controls {
+  display: flex;
+  gap: 0.5rem;
+}
+
+.control {
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  opacity: 0.8;
+  cursor: pointer;
+  transition: opacity 0.2s ease;
+}
+
+.control:hover {
+  opacity: 1;
+}
+
+.control.red {
+  background: #ff5f56;
+}
+
+.control.yellow {
+  background: #ffbd2e;
+}
+
+.control.green {
+  background: #27c93f;
+}
+
+.terminal-title {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  color: rgba(255, 255, 255, 0.7);
+  font-size: 0.9rem;
+  font-weight: 500;
+  flex: 1;
+  min-width: 150px;
+}
+
+.terminal-title svg {
+  color: var(--neon-cyan);
+}
+
+.terminal-actions {
+  display: flex;
+  gap: 0.5rem;
+  margin-left: auto;
+}
+
+.terminal-btn {
+  background: rgba(0, 240, 255, 0.1);
+  border: 1px solid rgba(0, 240, 255, 0.3);
+  color: var(--neon-cyan);
+  padding: 0.25rem 0.75rem;
+  border-radius: 4px;
+  font-size: 0.8rem;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  white-space: nowrap;
+}
+
+.terminal-btn:hover {
+  background: rgba(0, 240, 255, 0.2);
+  border-color: var(--neon-cyan);
+}
+
+.terminal-hint {
+  background: rgba(0, 240, 255, 0.05);
+  border-bottom: 1px solid rgba(0, 240, 255, 0.1);
+  padding: 0.75rem 1rem;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  color: rgba(0, 240, 255, 0.8);
+  font-size: 0.85rem;
+  line-height: 1.4;
+}
+
+.terminal-hint svg {
+  flex-shrink: 0;
+}
+
+.terminal-body {
+  padding: 1rem;
+  background: rgba(10, 10, 15, 0.95);
+  max-height: 400px;
+  overflow-y: auto;
+  overflow-x: hidden;
+  min-height: 200px;
+}
+
+.terminal-body::-webkit-scrollbar {
+  width: 8px;
+}
+
+.terminal-body::-webkit-scrollbar-track {
+  background: rgba(0, 0, 0, 0.3);
+}
+
+.terminal-body::-webkit-scrollbar-thumb {
+  background: rgba(0, 240, 255, 0.3);
+  border-radius: 4px;
+}
+
+.terminal-body::-webkit-scrollbar-thumb:hover {
+  background: rgba(0, 240, 255, 0.5);
+}
+
+.terminal-block {
+  margin-bottom: 1.5rem;
+  position: relative;
+  animation: fadeIn 0.3s ease-out;
+}
+
+.terminal-block:last-child {
+  margin-bottom: 0;
+}
+
+.terminal-command {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.75rem;
+  margin-bottom: 0.5rem;
+  position: relative;
+  word-wrap: break-word;
+  overflow-wrap: break-word;
+}
+
+.terminal-prompt {
+  color: var(--neon-cyan);
+  font-weight: bold;
+  user-select: none;
+  flex-shrink: 0;
+  margin-top: 2px;
+}
+
+.terminal-cmd-text {
+  color: var(--neon-magenta);
+  flex: 1;
+  word-wrap: break-word;
+  overflow-wrap: break-word;
+  white-space: pre-wrap;
+  min-width: 0;
+  padding-right: 2.5rem;
+}
+
+.copy-button {
+  position: absolute;
+  right: 0;
+  top: 0;
+  background: rgba(0, 240, 255, 0.1);
+  border: 1px solid rgba(0, 240, 255, 0.3);
+  border-radius: 4px;
+  padding: 0.25rem 0.5rem;
+  color: var(--neon-cyan);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 0.25rem;
+  font-size: 0.75rem;
+  opacity: 0;
+  transition: all 0.2s ease;
+  flex-shrink: 0;
+}
+
+.terminal-command:hover .copy-button,
+.terminal-output:hover .copy-button {
+  opacity: 1;
+}
+
+.copy-button:hover {
+  background: rgba(0, 240, 255, 0.2);
+  border-color: rgba(0, 240, 255, 0.5);
+}
+
+.copy-button:active {
+  transform: scale(0.95);
+}
+
+.terminal-output {
+  position: relative;
+  margin-left: 1.75rem;
+  padding-right: 2.5rem;
+  overflow-wrap: break-word;
+  word-wrap: break-word;
+}
+
+.terminal-output.error pre {
+  color: #ff6b6b;
+}
+
+.terminal-output pre {
+  margin: 0;
+  color: rgba(255, 255, 255, 0.9);
+  font-size: 0.85rem;
+  line-height: 1.5;
+  white-space: pre-wrap;
+  word-wrap: break-word;
+  overflow-wrap: break-word;
+  max-width: 100%;
+}
+
+.copy-output {
+  top: 0.5rem;
+}
+
+/* Interactive input line */
+.terminal-input-line {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  margin-top: 1rem;
+  padding: 0.5rem 0;
+  border-top: 1px solid rgba(0, 240, 255, 0.1);
+}
+
+.terminal-input {
+  flex: 1;
+  background: transparent;
+  border: none;
+  outline: none;
+  color: var(--neon-cyan);
+  font-family: 'Courier New', monospace;
+  font-size: 0.9rem;
+  padding: 0.25rem 0;
+  min-width: 0;
+}
+
+.terminal-input::placeholder {
+  color: rgba(0, 240, 255, 0.3);
+  font-style: italic;
+}
+
+.terminal-input:focus {
+  color: var(--neon-magenta);
+}
+
+/* Terminal footer with command hints */
+.terminal-footer {
+  background: rgba(20, 20, 30, 0.95);
+  border-top: 1px solid rgba(0, 240, 255, 0.2);
+  padding: 0.75rem 1rem;
+  overflow-x: auto;
+  overflow-y: hidden;
+  position: relative;
+  z-index: 1;
+}
+
+.command-hints {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  flex-wrap: wrap;
+  min-height: 28px;
+}
+
+.hint-label {
+  color: rgba(255, 255, 255, 0.5);
+  font-size: 0.8rem;
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+
+.hint-command {
+  background: rgba(255, 0, 255, 0.1);
+  border: 1px solid rgba(255, 0, 255, 0.3);
+  color: var(--neon-magenta);
+  padding: 0.25rem 0.75rem;
+  border-radius: 4px;
+  font-size: 0.75rem;
+  font-family: 'Courier New', monospace;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 300px;
+}
+
+.hint-command:hover {
+  background: rgba(255, 0, 255, 0.2);
+  border-color: var(--neon-magenta);
+  transform: translateY(-1px);
+}
+
+.hint-complete {
+  color: #51cf66;
+  font-size: 0.85rem;
+  font-weight: 600;
+  padding: 0.25rem 0.75rem;
+}
+
+/* Animation for new output */
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(-5px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Responsive design */
+@media (max-width: 768px) {
+  .terminal-header {
+    padding: 0.5rem 0.75rem;
+    gap: 0.5rem;
+  }
+
+  .terminal-actions {
+    width: 100%;
+    justify-content: flex-end;
+  }
+
+  .terminal-body {
+    padding: 0.75rem;
+    font-size: 0.8rem;
+    max-height: 300px;
+  }
+
+  .terminal-output pre {
+    font-size: 0.75rem;
+  }
+
+  .terminal-cmd-text {
+    font-size: 0.85rem;
+  }
+
+  .terminal-input {
+    font-size: 0.85rem;
+  }
+
+  .hint-command {
+    font-size: 0.7rem;
+    max-width: 200px;
+  }
+
+  .terminal-footer {
+    padding: 0.5rem 0.75rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .terminal-title span {
+    display: none;
+  }
+
+  .hint-label {
+    font-size: 0.7rem;
+  }
+
+  .hint-command {
+    max-width: 150px;
+  }
+}

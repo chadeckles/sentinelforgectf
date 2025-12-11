@@ -1,0 +1,73 @@
+version: '3.8'
+
+services:
+  # Database
+  postgres:
+    image: postgres:14-alpine
+    restart: always
+    environment:
+      POSTGRES_USER: ${DB_USER:-sentinelforge}
+      POSTGRES_PASSWORD: ${DB_PASSWORD:-changeme}
+      POSTGRES_DB: ${DB_NAME:-sentinelforge_ctf}
+      POSTGRES_HOST_AUTH_METHOD: md5
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    networks:
+      - sentinelforge-network
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${DB_USER:-sentinelforge}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  # Backend API
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    restart: always
+    ports:
+      - "${BACKEND_PORT:-3000}:3000"
+    environment:
+      NODE_ENV: production
+      PORT: 3000
+      DB_HOST: postgres
+      DB_PORT: 5432
+      DB_USER: ${DB_USER:-sentinelforge}
+      DB_PASSWORD: ${DB_PASSWORD:-changeme}
+      DB_NAME: ${DB_NAME:-sentinelforge_ctf}
+      JWT_SECRET: ${JWT_SECRET:-your-secret-key-change-in-production}
+      JWT_EXPIRES_IN: ${JWT_EXPIRES_IN:-7d}
+      CORS_ORIGIN: ${CORS_ORIGIN:-http://localhost}
+    depends_on:
+      postgres:
+        condition: service_healthy
+    networks:
+      - sentinelforge-network
+    volumes:
+      - backend_logs:/var/log/sentinelforge
+
+  # Frontend
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+      args:
+        VITE_API_URL: ${VITE_API_URL:-http://localhost:3000/api/v1}
+    restart: always
+    ports:
+      - "${FRONTEND_PORT:-80}:80"
+    depends_on:
+      - backend
+    networks:
+      - sentinelforge-network
+    environment:
+      VITE_API_URL: ${VITE_API_URL:-http://localhost:3000/api/v1}
+
+volumes:
+  postgres_data:
+  backend_logs:
+
+networks:
+  sentinelforge-network:
+    driver: bridge

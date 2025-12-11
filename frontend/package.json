@@ -1,0 +1,40 @@
+{
+  "name": "sentinelforge-frontend",
+  "version": "1.0.0",
+  "private": true,
+  "description": "SentinelForge CTF - Cyberpunk cloud security challenge platform",
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build",
+    "preview": "vite preview",
+    "lint": "eslint . --ext js,jsx --report-unused-disable-directives --max-warnings 0"
+  },
+  "dependencies": {
+    "@react-three/drei": "^9.122.0",
+    "@react-three/fiber": "^8.18.0",
+    "axios": "^1.6.2",
+    "date-fns": "^2.30.0",
+    "framer-motion": "^10.18.0",
+    "lucide-react": "^0.294.0",
+    "react": "^18.2.0",
+    "react-dom": "^18.2.0",
+    "react-globe.gl": "^2.37.0",
+    "react-hot-toast": "^2.4.1",
+    "react-markdown": "^10.1.0",
+    "react-router-dom": "^6.20.0",
+    "remark-gfm": "^4.0.1",
+    "three": "^0.181.2",
+    "three-globe": "^2.45.0",
+    "zustand": "^4.4.7"
+  },
+  "devDependencies": {
+    "@types/react": "^18.2.43",
+    "@types/react-dom": "^18.2.17",
+    "@vitejs/plugin-react": "^4.2.1",
+    "eslint": "^8.55.0",
+    "eslint-plugin-react": "^7.33.2",
+    "eslint-plugin-react-hooks": "^4.6.0",
+    "eslint-plugin-react-refresh": "^0.4.5",
+    "vite": "^5.0.8"
+  }
+}

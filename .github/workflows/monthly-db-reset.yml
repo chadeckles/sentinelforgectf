@@ -1,0 +1,62 @@
+name: Monthly Database Reset (Demo Environment)
+
+on:
+  # Run on the 1st of every month at 2 AM UTC
+  schedule:
+    - cron: '0 2 1 * *'
+  
+  # Allow manual trigger for testing
+  workflow_dispatch:
+
+env:
+  AZURE_RESOURCE_GROUP: ${{ secrets.AZURE_RESOURCE_GROUP }}
+  BACKEND_CONTAINER_NAME: ${{ secrets.BACKEND_CONTAINER_NAME }}
+
+jobs:
+  reset-database:
+    runs-on: ubuntu-latest
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+
+    - name: Azure Login
+      uses: azure/login@v1
+      with:
+        creds: ${{ secrets.AZURE_CREDENTIALS }}
+
+    - name: Restart Backend Container Instance
+      run: |
+        echo "🔄 Restarting backend container to trigger re-seed..."
+        
+        # Restart container instance (runs docker-entrypoint.sh with migrations and seeds)
+        az container restart \
+          --name ${{ env.BACKEND_CONTAINER_NAME }} \
+          --resource-group ${{ env.AZURE_RESOURCE_GROUP }}
+        
+        echo "✅ Backend container restarted - seeds will run automatically"
+
+    - name: Verify Health
+      run: |
+        echo "🏥 Waiting for service to restart and complete seeding..."
+        sleep 60  # Wait for restart + migrations + seeding to complete
+        
+        BACKEND_FQDN=$(az container show \
+          --name ${{ env.BACKEND_CONTAINER_NAME }} \
+          --resource-group ${{ env.AZURE_RESOURCE_GROUP }} \
+          --query ipAddress.fqdn -o tsv)
+        
+        curl -f http://${BACKEND_FQDN}:3000/health || exit 1
+        echo "✅ Health check passed - database refreshed"
+
+    - name: Notify on Success
+      if: success()
+      run: |
+        echo "✅ Monthly database reset completed successfully!"
+        echo "🗓️  Next reset: $(date -d '+1 month' '+%Y-%m-%d')"
+
+    - name: Notify on Failure
+      if: failure()
+      run: |
+        echo "❌ Monthly database reset failed!"
+        echo "Please check the logs and manually investigate."

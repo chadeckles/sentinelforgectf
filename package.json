@@ -1,0 +1,36 @@
+{
+  "name": "sentinelforge-ctf",
+  "version": "1.0.0",
+  "description": "A modern, cloud-focused CTF platform - Forge your skills at sentinel posts around the globe",
+  "private": true,
+  "scripts": {
+    "install:all": "npm install && cd backend && npm install && cd ../frontend && npm install",
+    "dev": "concurrently \"npm run dev:backend\" \"npm run dev:frontend\"",
+    "dev:backend": "cd backend && npm run dev",
+    "dev:frontend": "cd frontend && npm run dev",
+    "build": "cd backend && npm run build && cd frontend && npm run build",
+    "start": "cd backend && npm start",
+    "test": "npm run test:backend && npm run test:frontend",
+    "test:backend": "cd backend && npm test",
+    "test:frontend": "cd frontend && npm test",
+    "lint": "npm run lint:backend && npm run lint:frontend",
+    "lint:backend": "cd backend && npm run lint",
+    "lint:frontend": "cd frontend && npm run lint"
+  },
+  "keywords": [
+    "ctf",
+    "capture-the-flag",
+    "cloud-security",
+    "devsecops",
+    "azure",
+    "terraform",
+    "cybersecurity",
+    "sentinel",
+    "guardian"
+  ],
+  "author": "chadeckles",
+  "license": "MIT",
+  "devDependencies": {
+    "concurrently": "^8.2.2"
+  }
+}
