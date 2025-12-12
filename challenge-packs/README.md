@@ -1,125 +1,110 @@
-# Challenge Packs Directory
+# SentinelForge CTF Challenge Packs (PRIVATE)
 
-This directory contains challenge packs for SentinelForge CTF.
+🔒 **This is a PRIVATE repository** - Contains all SentinelForge CTF challenge content, solutions, and flags.
 
-## Public Content
+## 📦 Repository Contents
 
-- **demo-pack/** - 9 free challenges included with the platform
-- **validate-packs.js** - Validation script for all packs
-- **pack-loader.js** - Database seeding utility
-- **install-pack.sh** - Premium pack installation script
+All challenge packs for the SentinelForge CTF platform, including validation and loading utilities.
 
-## Premium Content (Not in Public Repo)
+### Challenge Packs
+- `azure-fundamentals/` - 12 challenges (1,800 pts) - Azure security basics
+- `cicd-pipeline/` - 10 challenges (2,300 pts) - CI/CD security ⭐ v2.0
+- `container-security/` - 11 challenges (3,000 pts) - Docker & K8s ⭐ v2.0
+- `terraform-security/` - 11 challenges (2,900 pts) - IaC security ⭐ v2.0
+- `identity-access/` - 11 challenges (3,300 pts) - Azure AD & IAM ⭐ v2.0
+- `demo-pack/` - 9 challenges (1,600 pts) - Demo content
 
-Premium challenge packs are available for purchase on Ko-fi to support the platform's development.
+### Utilities
+- `pack-loader.js` - Dynamically loads packs for database seeding
+- `validate-packs.js` - Validates challenge pack schemas
+- `ARCHITECTURE.md` - Technical documentation
 
-### Available Premium Packs
+## 📊 Statistics
 
-1. **Azure Fundamentals** ($15)
-   - 12 challenges covering comprehensive Azure security
-   - Topics: Storage, NSG, RBAC, encryption, networking, logging
-   - Difficulty: Easy to Hard
+**Total:** 64 challenges, 14,900 points, 38-50 hours of content
 
-2. **CI/CD Pipeline Security** ($10)
-   - 4 challenges focused on GitHub Actions vulnerabilities
-   - Topics: Workflow injection, PR attacks, artifact poisoning, secret exfiltration
-   - Difficulty: Medium to Hard
+| Pack | Challenges | Points | Time | Status |
+|------|-----------|--------|------|--------|
+| Azure Fundamentals | 12 | 1,800 | 4-6h | ✅ |
+| CI/CD Pipeline | 10 | 2,300 | 6-8h | ✅ v2.0 |
+| Container Security | 11 | 3,000 | 8-10h | ✅ v2.0 |
+| Terraform Security | 11 | 2,900 | 8-10h | ✅ v2.0 |
+| Identity & Access | 11 | 3,300 | 9-11h | ✅ v2.0 |
+| Demo Pack | 9 | 1,600 | 3-5h | ✅ |
 
-3. **Container Security** ($12)
-   - 5 challenges on Docker and Kubernetes exploitation
-   - Topics: Container escape, secret exposure, image vulnerabilities, privilege escalation
-   - Difficulty: Medium to Expert
+## 🚀 v2.0 Enhancements
 
-4. **Terraform Security** ($10)
-   - 5 challenges covering Infrastructure as Code security
-   - Topics: State encryption, credentials, module injection, state locking
-   - Difficulty: Easy to Hard
+All premium packs expanded to 10-12 challenges with advanced topics:
 
-5. **Identity & Access Management** ($12)
-   - 5 challenges on Azure AD and IAM security
-   - Topics: Service principals, managed identities, conditional access, guest users, PIM
-   - Difficulty: Medium to Hard
+**CI/CD:** OIDC exploitation, dependency confusion, self-hosted runners, Azure DevOps injection  
+**Container:** RBAC wildcards, supply chain, OPA Gatekeeper, Falco evasion  
+**Terraform:** Workspace escalation, backend hijacking, Sentinel bypass, drift evasion  
+**Identity:** OAuth/OIDC attacks, certificate bypass, JIT exploitation, AD Connect attacks
 
-6. **Complete Premium Bundle** ($45 - Save $14!)
-   - All 5 premium packs
-   - 31 total challenges, 5800 points
+## 🛠️ Usage
 
-## Installing Premium Packs
-
-After purchasing on Ko-fi:
-
+### Validate Packs
 ```bash
-# Extract the pack
-unzip azure-fundamentals-pack.zip -d challenge-packs/
-
-# Validate
 node validate-packs.js
-
-# Seed database
-cd ../backend && npm run db:seed
 ```
 
-Or use the automated installer:
-
+### Test Loading
 ```bash
-./install-pack.sh ~/Downloads/azure-fundamentals-pack.zip
+node pack-loader.js
 ```
 
-See `PREMIUM_PACKS_README.md` for detailed installation instructions.
+### Integration
+This repo is consumed by the main CTF platform:
+1. Pack loader dynamically reads challenge packs
+2. Backend seed script imports via pack-loader.js
+3. Challenges seeded into PostgreSQL database
 
-## For Developers
+## 📝 Quality Standards
 
-### Creating New Packs
+✅ Realistic exploitable scenarios  
+✅ Detailed terminal outputs (5-8 steps)  
+✅ Prevention strategies with code  
+✅ Verified Microsoft Learn links  
+✅ 2-3 hints + 3-4 learning resources per challenge  
+✅ All packs pass schema validation
 
-1. Create folder: `challenge-packs/new-pack/`
-2. Add `package-info.json` with metadata
-3. Add `challenges.json` with challenge definitions
-4. Validate: `node validate-packs.js`
-5. Test load: `node test-pack-loader.js`
+## 🔒 Security
 
-### Pack Structure
+- **PRIVATE REPO** - Never make public
+- Contains solutions and flags
+- Educational use only
+- Authorized testing only
 
-```
-pack-name/
-├── package-info.json  # Metadata (name, category, price, etc)
-└── challenges.json    # Challenge definitions
-```
+## 📚 Documentation
 
-### Available Categories
-- Trivia
-- Cloud Security
-- Container Security
-- Infrastructure as Code
-- DevSecOps
-- IAM
+Each pack contains:
+- `package-info.json` - Pack metadata
+- `challenges.json` - Challenge definitions
 
-### Valid Difficulties
-- easy
-- medium
-- hard
-- expert
+Challenge schema validated for:
+- JSON structure
+- Required fields
+- Valid difficulties (easy/medium/hard)
+- Category matching
+- Points distribution
 
-## License
+## 🎯 Deployment Workflow
 
-- **Public packs** (demo-pack): MIT License
-- **Premium packs**: Licensed for personal/single-organization use only
+1. **Edit** - Make changes in this repo
+2. **Validate** - Run `validate-packs.js`
+3. **Test** - Test on development environment
+4. **Commit** - Push to private repo
+5. **Deploy** - Pull into production CTF
+6. **Seed** - Run database seed
+
+## 📧 Maintainer
+
+Chad Eckles (@chadeckles)
 
 ---
 
-💡 **Tip:** Start with the free demo-pack to learn the platform, then expand with premium packs for advanced training!
-
-🛒 **Purchase Premium Packs:** [Ko-fi Link - Add your Ko-fi shop URL here]
-
-Revenue supports:
-- Platform hosting costs
-- New challenge development
-- Community features
-- Documentation improvements
-
-## ⚠️ License
-
-Premium challenge packs are proprietary and not covered by the MIT license of the main SentinelForge platform. They are licensed for use only by purchasers and may not be redistributed.
-
----
-
-**Questions?** Contact: [Your contact info]
+**Status:** ✅ Production Ready  
+**Version:** 2.0.0  
+**Last Updated:** December 12, 2024  
+**Total Challenges:** 64  
+**Total Points:** 14,900

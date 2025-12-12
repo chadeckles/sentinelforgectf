@@ -7,7 +7,6 @@
   "difficulty_level": "beginner_to_advanced",
   "challenge_count": 9,
   "total_points": 1650,
-  "estimated_completion_time": "3-5 hours",
   "prerequisites": [
     "Basic cloud computing knowledge",
     "Git fundamentals",

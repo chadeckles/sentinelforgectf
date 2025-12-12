@@ -35,14 +35,14 @@ challenge-packs/
 
 ### Usage
 ```bash
-# Seed all premium packs
-npx knex seed:run --specific=../challenge-packs/pack-loader.ts
+# Seed all packs via backend seed file
+cd backend && npm run db:seed
 
-# Seed specific pack only
-PACK=azure-fundamentals npx knex seed:run --specific=../challenge-packs/pack-loader.ts
+# Or test pack-loader directly
+node challenge-packs/pack-loader.js
 
 # Validate before seeding
-node ../challenge-packs/validate-packs.js
+node challenge-packs/validate-packs.js
 ```
 
 ## Implementation Plan
@@ -69,7 +69,7 @@ node ../challenge-packs/validate-packs.js
 }
 ```
 
-### 2. Create `pack-loader.ts`
+### 2. Create `pack-loader.js`
 - Reads all pack JSON files
 - Generates challenge objects with hashed flags
 - Inserts into database
@@ -81,9 +81,9 @@ node ../challenge-packs/validate-packs.js
 - Detects duplicate flags
 - Reports issues before seeding
 
-## Next Steps
-1. Convert existing Azure Fundamentals challenges to JSON
-2. Build pack-loader.ts
-3. Build validator
-4. Test with Azure Fundamentals pack
-5. Document for future packs
+## Implementation Status
+1. ✅ Converted demo challenges to JSON
+2. ✅ Built pack-loader.js
+3. ✅ Built validator
+4. ✅ Created 6 challenge packs (40 total challenges)
+5. ✅ Documented for future packs

@@ -9,7 +9,6 @@
     "is_active": true,
     "metadata": {
       "hints_available": false,
-      "estimated_time": "2 minutes",
       "learning_resources": [
         {
           "title": "Azure Service Bus vs AWS SQS",
@@ -29,7 +28,6 @@
     "is_active": true,
     "metadata": {
       "hints_available": false,
-      "estimated_time": "2 minutes",
       "learning_resources": [
         {
           "title": "Azure Geographies and Regions",
@@ -54,7 +52,6 @@
     "is_active": true,
     "metadata": {
       "hints_available": false,
-      "estimated_time": "2 minutes",
       "learning_resources": [
         {
           "title": "Container Instances Overview",
@@ -79,7 +76,6 @@
     "is_active": true,
     "metadata": {
       "hints_available": true,
-      "estimated_time": "15 minutes",
       "terminal": [
         {
           "command": "az storage account list --resource-group prod-web-rg --output table",
@@ -141,7 +137,6 @@
     "is_active": true,
     "metadata": {
       "hints_available": true,
-      "estimated_time": "15 minutes",
       "terminal": [
         {
           "command": "git log --oneline",
@@ -190,7 +185,6 @@
     "is_active": true,
     "metadata": {
       "hints_available": true,
-      "estimated_time": "20 minutes",
       "terminal": [
         {
           "command": "cat terraform.tfstate | jq '.'",
@@ -239,7 +233,6 @@
     "is_active": true,
     "metadata": {
       "hints_available": true,
-      "estimated_time": "30 minutes",
       "terminal": [
         {
           "command": "whoami",
@@ -300,7 +293,6 @@
     "is_active": true,
     "metadata": {
       "hints_available": true,
-      "estimated_time": "45 minutes",
       "terminal": [
         {
           "command": "az keyvault show --name sentinelforge-kv --query \"properties.{PublicAccess:publicNetworkAccess,NetworkDefault:networkAcls.defaultAction,RBAC:enableRbacAuthorization}\"",
@@ -349,7 +341,6 @@
     "is_active": true,
     "metadata": {
       "hints_available": true,
-      "estimated_time": "30 minutes",
       "terminal": [
         {
           "command": "cat .github/workflows/ci.yml | grep -A 3 \"pull_request.title\"",

@@ -1,7 +1,9 @@
 import type { Knex } from 'knex';
 import bcrypt from 'bcrypt';
+import { createRequire } from 'module';
 
 // Import the pack loader
+const require = createRequire(import.meta.url);
 const { seed: seedPacks } = require('../../challenge-packs/pack-loader');
 
 export async function seed(knex: Knex): Promise<void> {
