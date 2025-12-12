@@ -23,7 +23,7 @@ Most CTF platforms emphasize traditional ethical hacking skills like password cr
 
 We're a community-driven platform built for the builders and implementors — cloud architects, DevOps engineers, platform teams, and security practitioners who design, deploy, and secure today's infrastructure.
 
-<img width="1536" height="1024" alt="image" src="https://github.com/user-attachments/assets/21bcb92f-7592-44ba-b9ec-e06204616206" />
+<img width="1536" height="1024" alt="image" src="https://github.com/user-attachments/assets/f6e3f633-86fa-42a2-a710-3a6f0f6e16ce" />
 
 
 ## ✨ Key Features
