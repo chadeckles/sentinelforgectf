@@ -8,14 +8,14 @@ RUN apk add --no-cache python3 make g++ libc6-compat \
     && ln -sf python3 /usr/bin/python
 
 # Copy package files
-COPY package*.json ./
-COPY tsconfig.json ./
+COPY backend/package*.json ./
+COPY backend/tsconfig.json ./
 
 # Install all dependencies (including dev dependencies for build)
 RUN npm ci
 
 # Copy source code
-COPY . .
+COPY backend/ .
 
 # Compile TypeScript
 RUN npm run build
@@ -30,7 +30,7 @@ RUN apk add --no-cache postgresql-client python3 make g++ libc6-compat \
     && ln -sf python3 /usr/bin/python
 
 # Install production dependencies only
-COPY package*.json ./
+COPY backend/package*.json ./
 RUN npm ci --only=production \
     && npm install --no-save ts-node typescript
 
@@ -38,14 +38,14 @@ RUN npm ci --only=production \
 COPY --from=build /opt/sentinelforge/backend/dist ./dist
 
 # Copy necessary files
-COPY knexfile.ts ./
-COPY tsconfig.json ./
-COPY tsconfig.knex.json ./
-COPY migrations ./migrations
-COPY seeds ./seeds
+COPY backend/knexfile.ts ./
+COPY backend/tsconfig.json ./
+COPY backend/tsconfig.knex.json ./
+COPY backend/migrations ./migrations
+COPY backend/seeds ./seeds
 
-# Copy challenge-packs from parent directory
-COPY ../challenge-packs ./challenge-packs
+# Copy challenge-packs from root directory
+COPY challenge-packs ./challenge-packs
 
 # Create non-root user
 RUN addgroup -g 1001 -S sentinelforge && \
@@ -54,7 +54,7 @@ RUN addgroup -g 1001 -S sentinelforge && \
     chown -R sentinelforge:sentinelforge /opt/sentinelforge /var/log/sentinelforge
 
 # Copy entrypoint script
-COPY docker-entrypoint.sh ./
+COPY backend/docker-entrypoint.sh ./
 RUN chmod +x docker-entrypoint.sh
 
 USER sentinelforge

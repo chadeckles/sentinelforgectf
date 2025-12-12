@@ -23,8 +23,8 @@ services:
   # Backend API
   backend:
     build:
-      context: ./backend
-      dockerfile: Dockerfile
+      context: .
+      dockerfile: ./backend/Dockerfile
     restart: always
     ports:
       - "${BACKEND_PORT:-3000}:3000"
