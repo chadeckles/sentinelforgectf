@@ -9,8 +9,8 @@ on:
   workflow_dispatch:
 
 env:
-  AZURE_RESOURCE_GROUP: ${{ secrets.AZURE_RESOURCE_GROUP }}
-  BACKEND_CONTAINER_NAME: ${{ secrets.BACKEND_CONTAINER_NAME }}
+  AZURE_RESOURCE_GROUP: ${{ vars.AZURE_RESOURCE_GROUP }}
+  BACKEND_CONTAINER_NAME: ${{ vars.BACKEND_CONTAINER_APP }}
 
 jobs:
   reset-database:
@@ -25,28 +25,29 @@ jobs:
       with:
         creds: ${{ secrets.AZURE_CREDENTIALS }}
 
-    - name: Restart Backend Container Instance
+    - name: Restart Backend Container App
       run: |
-        echo "🔄 Restarting backend container to trigger re-seed..."
+        echo "🔄 Triggering backend container app restart via revision update..."
         
-        # Restart container instance (runs docker-entrypoint.sh with migrations and seeds)
-        az container restart \
+        # Force a new revision to trigger restart (runs docker-entrypoint.sh with migrations and seeds)
+        az containerapp update \
           --name ${{ env.BACKEND_CONTAINER_NAME }} \
-          --resource-group ${{ env.AZURE_RESOURCE_GROUP }}
+          --resource-group ${{ env.AZURE_RESOURCE_GROUP }} \
+          --revision-suffix reset-$(date +%s)
         
-        echo "✅ Backend container restarted - seeds will run automatically"
+        echo "✅ Backend container app restarted with new revision - seeds will run automatically"
 
     - name: Verify Health
       run: |
         echo "🏥 Waiting for service to restart and complete seeding..."
-        sleep 60  # Wait for restart + migrations + seeding to complete
+        sleep 90  # Wait for restart + migrations + seeding to complete
         
-        BACKEND_FQDN=$(az container show \
+        BACKEND_FQDN=$(az containerapp show \
           --name ${{ env.BACKEND_CONTAINER_NAME }} \
           --resource-group ${{ env.AZURE_RESOURCE_GROUP }} \
-          --query ipAddress.fqdn -o tsv)
+          --query properties.configuration.ingress.fqdn -o tsv)
         
-        curl -f http://${BACKEND_FQDN}:3000/health || exit 1
+        curl -f https://${BACKEND_FQDN}/health || exit 1
         echo "✅ Health check passed - database refreshed"
 
     - name: Notify on Success

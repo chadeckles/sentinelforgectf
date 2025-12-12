@@ -156,8 +156,15 @@ sentinelforge-ctf/
 │   ├── nginx.conf        # nginx web server config
 │   ├── vite.config.js    # Vite build configuration
 │   └── package.json      # Frontend dependencies
+├── challenge-packs/      # Modular challenge definitions
+│   ├── demo-pack/        # Sample challenge pack
+│   │   ├── challenges.json       # Challenge definitions
+│   │   └── package-info.json     # Pack metadata
+│   ├── pack-loader.js    # Challenge pack loader utility
+│   └── README.md         # Challenge pack documentation
 ├── docs/                 # Documentation
 │   ├── ADMIN_GUIDE.md    # Platform administration
+│   ├── CHALLENGE_PACKS.md # Creating challenge packs
 │   └── flag-security.md  # Flag generation best practices
 ├── .github/
 │   └── workflows/        # CI/CD automation
@@ -172,7 +179,6 @@ sentinelforge-ctf/
 ### Simulated Terminal
 Interactive CLI environment with:
 - Pre-loaded commands for each challenge
-- Auto-complete (TAB key)
 - Copy-to-clipboard for all commands/output
 - Helpful error messages for invalid commands
 
@@ -190,13 +196,15 @@ Contributions are welcome! Please read [CONTRIBUTING.md](CONTRIBUTING.md) first.
 
 This project is licensed under the MIT License - see [LICENSE](LICENSE) file.
 
-## 💰 Operating Model
+## 🌟 Operating Model
 
 SentinelForge is **free and open-source** for self-hosting. Our operating model:
 
 - ✅ **Free Forever**: Docker self-hosting, base platform, sample demo challenges
-- 💰 **Challenge Packs**: Premium security scenarios (Azure, AWS, Kubernetes, etc.)
-- 💰 **Support**: Enterprise support subscriptions available
+- 📦 **Challenge Packs***: Premium security scenarios (Azure, AWS, Kubernetes, etc.)
+- 🤝 **Consulting***: Custom challenge development and deployment assistance available
+
+_*Available for purchase on Ko-fi_
 
 <div align="center">
 

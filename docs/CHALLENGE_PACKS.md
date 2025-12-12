@@ -30,18 +30,35 @@ challenge-packs/
 
 ### Loading All Challenge Packs
 
-Challenge packs are automatically loaded when you seed the database:
+**Option 1: Restart Containers (Recommended for fresh setup)**
+
+The easiest way to load challenge packs is to restart your Docker containers:
+
+```bash
+# Stop and restart (runs migrations + seeds automatically)
+docker-compose restart backend
+
+# Or rebuild everything from scratch
+docker-compose down -v
+docker-compose up -d --build
+```
+
+This automatically:
+1. ✅ Runs database migrations
+2. ✅ Loads all challenge packs from `challenge-packs/` directory
+3. ✅ Hashes all flags securely
+4. ✅ Creates sample users and achievements
+
+**Option 2: Manual Seed (For live events - no disruption)**
+
+If your event is already running and you don't want to restart containers:
 
 ```bash
 cd backend
 npm run db:seed
 ```
 
-This will:
-1. ✅ Load all challenge packs from `challenge-packs/` directory
-2. ✅ Hash all flags securely
-3. ✅ Insert challenges into PostgreSQL database
-4. ✅ Create sample users and achievements
+This adds new challenges without affecting running containers or active users.
 
 ### Loading Specific Packs
 
@@ -95,7 +112,7 @@ This file contains metadata about your pack:
   "description": "A collection of awesome security challenges",
   "author": "Your Name",
   "category": "Cloud Security",
-  "difficulty_level": "intermediate",
+  "difficulty_level": "medium",
   "challenge_count": 5,
   "total_points": 1000,
   "prerequisites": [

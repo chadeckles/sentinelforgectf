@@ -1,0 +1,115 @@
+name: Deploy to Azure Container Apps
+
+on:
+  workflow_dispatch: # Manual trigger
+  push:
+    branches:
+      - main
+    paths:
+      - 'backend/**'
+      - 'frontend/**'
+      - '.github/workflows/deploy-azure.yml'
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Azure Login
+        uses: azure/login@v1
+        with:
+          creds: ${{ secrets.AZURE_CREDENTIALS }}
+
+      - name: Login to Azure Container Registry
+        run: |
+          az acr login --name ${{ vars.ACR_NAME }}
+
+      - name: Get Backend FQDN for Frontend Build
+        id: backend-fqdn
+        run: |
+          BACKEND_FQDN=$(az containerapp show \
+            --name ${{ vars.BACKEND_CONTAINER_APP }} \
+            --resource-group ${{ vars.AZURE_RESOURCE_GROUP }} \
+            --query properties.configuration.ingress.fqdn \
+            -o tsv)
+          echo "fqdn=https://${BACKEND_FQDN}/api/v1" >> $GITHUB_OUTPUT
+          echo "Backend API URL: https://${BACKEND_FQDN}/api/v1"
+
+      - name: Build Backend Image
+        run: |
+          docker build --platform linux/amd64 \
+            -f backend/Dockerfile \
+            -t ${{ vars.ACR_LOGIN_SERVER }}/${{ vars.BACKEND_IMAGE }}:latest \
+            -t ${{ vars.ACR_LOGIN_SERVER }}/${{ vars.BACKEND_IMAGE }}:${{ github.sha }} \
+            .
+
+      - name: Build Frontend Image
+        run: |
+          docker build --platform linux/amd64 \
+            -f frontend/Dockerfile \
+            --build-arg VITE_API_URL=${{ steps.backend-fqdn.outputs.fqdn }} \
+            -t ${{ vars.ACR_LOGIN_SERVER }}/${{ vars.FRONTEND_IMAGE }}:latest \
+            -t ${{ vars.ACR_LOGIN_SERVER }}/${{ vars.FRONTEND_IMAGE }}:${{ github.sha }} \
+            frontend/
+
+      - name: Push Backend Image
+        run: |
+          docker push ${{ vars.ACR_LOGIN_SERVER }}/${{ vars.BACKEND_IMAGE }}:latest
+          docker push ${{ vars.ACR_LOGIN_SERVER }}/${{ vars.BACKEND_IMAGE }}:${{ github.sha }}
+
+      - name: Push Frontend Image
+        run: |
+          docker push ${{ vars.ACR_LOGIN_SERVER }}/${{ vars.FRONTEND_IMAGE }}:latest
+          docker push ${{ vars.ACR_LOGIN_SERVER }}/${{ vars.FRONTEND_IMAGE }}:${{ github.sha }}
+
+      - name: Update Backend Container App
+        run: |
+          az containerapp update \
+            --name ${{ vars.BACKEND_CONTAINER_APP }} \
+            --resource-group ${{ vars.AZURE_RESOURCE_GROUP }} \
+            --image ${{ vars.ACR_LOGIN_SERVER }}/${{ vars.BACKEND_IMAGE }}:${{ github.sha }} \
+            --revision-suffix deploy-$(date +%s)
+
+      - name: Update Frontend Container App
+        run: |
+          az containerapp update \
+            --name ${{ vars.FRONTEND_CONTAINER_APP }} \
+            --resource-group ${{ vars.AZURE_RESOURCE_GROUP }} \
+            --image ${{ vars.ACR_LOGIN_SERVER }}/${{ vars.FRONTEND_IMAGE }}:${{ github.sha }} \
+            --revision-suffix deploy-$(date +%s)
+
+      - name: Wait for Backend Health
+        run: |
+          echo "Waiting 60 seconds for backend to start..."
+          sleep 60
+          BACKEND_FQDN=$(az containerapp show \
+            --name ${{ vars.BACKEND_CONTAINER_APP }} \
+            --resource-group ${{ vars.AZURE_RESOURCE_GROUP }} \
+            --query properties.configuration.ingress.fqdn \
+            -o tsv)
+          
+          echo "Testing backend health at https://${BACKEND_FQDN}/health"
+          for i in {1..10}; do
+            if curl -f -s "https://${BACKEND_FQDN}/health" > /dev/null; then
+              echo "✅ Backend is healthy!"
+              exit 0
+            fi
+            echo "Attempt $i failed, waiting 10 seconds..."
+            sleep 10
+          done
+          echo "❌ Backend health check failed after 10 attempts"
+          exit 1
+
+      - name: Deployment Summary
+        run: |
+          echo "🚀 Deployment Complete!"
+          echo ""
+          echo "Backend Image: ${{ vars.ACR_LOGIN_SERVER }}/${{ vars.BACKEND_IMAGE }}:${{ github.sha }}"
+          echo "Frontend Image: ${{ vars.ACR_LOGIN_SERVER }}/${{ vars.FRONTEND_IMAGE }}:${{ github.sha }}"
+          echo ""
+          echo "Frontend URL: https://sentinelforgectf.io"
+          echo ""
+          echo "Git Commit: ${{ github.sha }}"

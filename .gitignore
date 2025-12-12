@@ -8,8 +8,8 @@ node_modules/
 *.log
 
 # Production builds
-/build
-/dist
+**/build
+**/dist
 /.next/
 /out/
 

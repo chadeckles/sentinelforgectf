@@ -6,6 +6,18 @@ First off, thank you for considering contributing to SentinelForge CTF! 🛡️�
 
 This project is built on the principle that security education through CTF challenges helps create better defenders. We welcome contributions from everyone who shares this mission.
 
+**We expect all contributors to:**
+- Be respectful and inclusive in all interactions
+- Provide constructive feedback and accept it gracefully
+- Focus on what is best for the community and the project
+- Show empathy towards other community members
+- Avoid harassment, discriminatory language, or personal attacks
+
+**Unacceptable behavior includes:**
+- Trolling, insulting comments, or personal attacks
+- Publishing others' private information without permission
+- Any conduct that would be inappropriate in a professional setting
+
 ## How Can I Contribute?
 
 ### Reporting Bugs
@@ -38,66 +50,85 @@ We always need more challenges! See the [Creating Challenges section in the Admi
 1. Fork the repo
 2. Create a feature branch (`git checkout -b feature/amazing-feature`)
 3. Make your changes
-4. Write/update tests
-5. Run linters (`npm run lint`)
-6. Commit with clear messages
-7. Push to your fork
-8. Open a Pull Request
+4. Test with Docker Compose (`docker-compose up -d --build`)
+5. Commit with clear messages
+6. Push to your fork
+7. Open a Pull Request
 
 ## Development Setup
+
+**Using Docker Compose (Recommended):**
 
 ```bash
 # Clone your fork
 git clone https://github.com/YOUR-USERNAME/sentinelforge-ctf.git
 cd sentinelforge-ctf
 
-# Install all dependencies
-npm run install:all
+# Build and start everything (runs in background)
+docker-compose up -d --build
 
-# Set up environment variables
-cp backend/.env.example backend/.env
-cp frontend/.env.example frontend/.env
+# View logs
+docker-compose logs -f
 
-# Start development servers
-npm run dev
+# The platform will be available at:
+# Frontend: http://localhost (port 80)
+# Backend API: http://localhost:3000/api/v1
+
+# Stop when done
+docker-compose down
+
+# Clean slate (removes volumes/database)
+docker-compose down -v
 ```
+
+**For code changes:**
+- Edit files locally
+- Rebuild: `docker-compose up -d --build`
+- Docker will automatically apply migrations and load challenge packs on startup
 
 ## Coding Standards
 
 ### Backend (TypeScript/Node.js)
 
-- Use TypeScript strict mode
 - Follow ESLint configuration
-- Write JSDoc comments for public APIs
-- Include unit tests for new features
+- Write clear comments for complex logic
+- Include error handling for all async operations
 - Use async/await over callbacks
+- Validate all user inputs
+- Follow RESTful API conventions
 
-### Frontend (React/TypeScript)
+### Frontend (React/Vite)
 
 - Use functional components and hooks
 - Follow the existing component structure
-- Implement responsive design
+- Implement responsive design (mobile-friendly)
 - Maintain cyberpunk theme consistency
 - Write accessible code (ARIA labels, semantic HTML)
+- Keep components small and focused
 
-### Database
+### Database (Knex.js migrations)
 
-- Write migrations for schema changes
-- Include rollback logic
-- Use transactions for data integrity
-- Index frequently queried fields
-
+- Write migrations for all schema changes
+- Include both `up` and `down` functions
+- Test migrations on a fresh database
 ## Testing
 
 ```bash
-# Backend tests
-cd backend && npm test
+# Test your changes with Docker Compose
+docker-compose up -d --build
 
-# Frontend tests
-cd frontend && npm test
+# Verify the platform works end-to-end:
+# 1. Register a new user
+# 2. Browse challenges
+# 3. Submit flags
+# 4. Check scoreboard updates
 
-# E2E tests (if available)
-npm run test:e2e
+# For a clean slate (fresh database):
+docker-compose down -v
+docker-compose up -d --build
+```
+# For backend changes, verify database migrations:
+cd backend && npm run migrate
 ```
 
 ## Commit Messages
@@ -114,14 +145,16 @@ test: add unit tests for submission validation
 chore: update dependencies
 ```
 
-## Security
+## Security Vulnerabilities
 
-If you discover a security vulnerability:
+If you discover a security vulnerability in the platform:
 
 1. **DO NOT** open a public issue
-2. Email: security@sentinelforgectf.io
-3. Include details and steps to reproduce
-4. Allow time for a fix before public disclosure
+2. Email us at **security@sentinelforgectf.io**
+3. Include detailed steps to reproduce the vulnerability
+4. Allow reasonable time for a fix before public disclosure
+
+We take security seriously and will respond promptly to all reports.
 
 ## License
 
@@ -129,7 +162,7 @@ By contributing, you agree that your contributions will be licensed under the MI
 
 ## Questions?
 
-Feel free to open an issue with the `question` label or email us at info@sentinelforgectf.io.
+Feel free to open an issue with the `question` label on GitHub. For general discussions, check the Discussions tab. Optionally, feel free to email us at info@sentinelforgectf.io 
 
 ---
 
