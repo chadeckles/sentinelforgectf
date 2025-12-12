@@ -13,7 +13,6 @@ router.get('/', async (req, res, next) => {
         'id',
         'title',
         'description',
-        'type',
         'difficulty',
         'category',
         'points',

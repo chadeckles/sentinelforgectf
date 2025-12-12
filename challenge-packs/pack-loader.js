@@ -9,8 +9,14 @@ const crypto = require('crypto');
  * Reads JSON challenge definitions and generates database seed data
  */
 
-// Get database connection from backend
-const dbConfig = require('../backend/src/config/database');
+// Get database connection from backend (only if run standalone)
+let dbConfig = null;
+try {
+  dbConfig = require('../backend/src/config/database');
+} catch (e) {
+  // Will be null if run from seeds (knex instance will be passed instead)
+  dbConfig = null;
+}
 
 /**
  * Hash a flag using the same method as backend seeds
@@ -91,7 +97,11 @@ function transformChallenge(challenge, index) {
  * @param {Object} knexInstance - Optional knex instance (creates own if not provided)
  */
 async function seed(knexInstance = null) {
-  const knex = knexInstance || dbConfig.default;
+  const knex = knexInstance || (dbConfig && dbConfig.default);
+  
+  if (!knex) {
+    throw new Error('No database connection available. Pass a knex instance or ensure dbConfig is available.');
+  }
   
   try {
     console.log('\n🌱 Challenge Pack Seeder\n');

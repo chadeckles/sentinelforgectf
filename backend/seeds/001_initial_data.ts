@@ -122,7 +122,6 @@ While this is about AWS history, understanding competing cloud platforms helps y
 **Hint:** It's still one of the most popular AWS services today for distributed systems and starts with an 'S'. Think about message queuing.
 
 **Answer Format:** Enter the service name in all caps (e.g., flag{SERVICENAME})`,
-        type: 'qa',
         difficulty: 'easy',
         category: 'Trivia',
         points: 50,
@@ -155,7 +154,6 @@ Learn about Azure regions and availability zones: https://learn.microsoft.com/en
 **Hint:** This European country is known for its advanced infrastructure and strict data privacy laws. It's also a major tech hub.
 
 **Answer Format:** Enter the country name (e.g., flag{COUNTRYNAME})`,
-        type: 'qa',
         difficulty: 'easy',
         category: 'Trivia',
         points: 50,
@@ -193,7 +191,6 @@ Introduction to containers on Azure: https://learn.microsoft.com/en-us/azure/con
 **Hint:** It was in the early 2010s, and the project was originally called "dotCloud" before pivoting to focus on containers.
 
 **Answer Format:** Enter the 4-digit year (e.g., flag{YYYY})`,
-        type: 'qa',
         difficulty: 'easy',
         category: 'Trivia',
         points: 50,
@@ -225,7 +222,6 @@ Introduction to containers on Azure: https://learn.microsoft.com/en-us/azure/con
 **Your Mission:** Investigate the storage account configuration and find the flag that proves public data exposure is possible.
 
 **Skills Required:** Azure Storage, access control analysis, cloud security best practices`,
-        type: 'repo',
         difficulty: 'easy',
         category: 'Cloud Security',
         points: 100,
@@ -374,7 +370,6 @@ Use: az storage blob download --account-name <account> --container-name <contain
 - Azure Key Vault for secrets: https://learn.microsoft.com/en-us/azure/key-vault/general/overview
 
 **Skills Required:** Git history analysis, secret scanning, DevSecOps best practices`,
-        type: 'repo',
         difficulty: 'easy',
         category: 'DevSecOps',
         points: 150,
@@ -565,7 +560,6 @@ But git never forgets! The secret remains in the commit history.
 - Terraform with Azure: https://learn.microsoft.com/en-us/azure/developer/terraform/overview
 
 **Skills Required:** Terraform, IaC security, state file analysis, JSON parsing`,
-        type: 'terraform',
         difficulty: 'medium',
         category: 'Infrastructure as Code',
         points: 200,
@@ -1068,7 +1062,6 @@ the state file stores it in PLAIN TEXT. This is why state files must be:
 **Skills Required:** Docker, Linux capabilities, privilege escalation, container security
 
 **Note:** This is a simulated environment. The techniques demonstrated should only be used for educational purposes in authorized environments.`,
-        type: 'container',
         difficulty: 'hard',
         category: 'Container Security',
         points: 300,
@@ -1315,7 +1308,6 @@ drwxr-xr-x  3 root root  4096 Oct 28 00:00 .cache
 - Managed Identity: https://learn.microsoft.com/en-us/azure/active-directory/managed-identities-azure-resources/overview
 
 **Skills Required:** Azure Key Vault, Managed Identities, RBAC, API exploitation`,
-        type: 'qa',
         difficulty: 'expert',
         category: 'Cloud Security',
         points: 400,
@@ -1596,7 +1588,6 @@ This demonstrates a critical security failure where:
 - Secure DevOps: https://learn.microsoft.com/en-us/devops/operate/security-in-devops
 
 **Skills Required:** GitHub Actions, CI/CD security, code injection, YAML analysis`,
-        type: 'repo',
         difficulty: 'hard',
         category: 'DevSecOps',
         points: 350,

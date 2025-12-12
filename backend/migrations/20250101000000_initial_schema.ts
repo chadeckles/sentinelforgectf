@@ -8,7 +8,6 @@ export async function up(knex: Knex): Promise<void> {
   if (isPostgres) {
     await knex.raw(`
       CREATE TYPE user_role AS ENUM ('admin', 'user');
-      CREATE TYPE challenge_type AS ENUM ('qa', 'repo', 'terraform', 'container', 'file_upload', 'multi_part');
       CREATE TYPE challenge_difficulty AS ENUM ('easy', 'medium', 'hard', 'expert');
     `);
   }
@@ -82,10 +81,8 @@ export async function up(knex: Knex): Promise<void> {
     table.text('description').notNullable();
     
     if (isPostgres) {
-      table.specificType('type', 'challenge_type').notNullable();
       table.specificType('difficulty', 'challenge_difficulty').notNullable();
     } else {
-      table.string('type', 50).notNullable();
       table.string('difficulty', 20).notNullable();
     }
     
@@ -94,6 +91,7 @@ export async function up(knex: Knex): Promise<void> {
     table.string('flag_hash', 64).notNullable();
     table.boolean('is_active').defaultTo(true);
     table.integer('max_attempts').defaultTo(null);
+    table.integer('order_index').defaultTo(0);
     
     if (isPostgres) {
       table.jsonb('metadata');
@@ -106,7 +104,6 @@ export async function up(knex: Knex): Promise<void> {
 
   // Add CHECK constraints for MSSQL enums
   if (isMssql) {
-    await knex.raw(`ALTER TABLE challenges ADD CONSTRAINT chk_challenge_type CHECK (type IN ('qa', 'repo', 'terraform', 'container', 'file_upload', 'multi_part'))`);
     await knex.raw(`ALTER TABLE challenges ADD CONSTRAINT chk_challenge_difficulty CHECK (difficulty IN ('easy', 'medium', 'hard', 'expert'))`);
   }
 

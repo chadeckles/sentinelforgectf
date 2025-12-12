@@ -1,10 +1,20 @@
 import type { Knex } from 'knex';
 import bcrypt from 'bcrypt';
-import { createRequire } from 'module';
+import path from 'path';
+import fs from 'fs';
 
-// Import the pack loader
-const require = createRequire(import.meta.url);
-const { seed: seedPacks } = require('../../challenge-packs/pack-loader');
+// Import the pack loader using require (CommonJS)
+// Use process.cwd() to get the actual working directory, not __dirname
+const packLoaderPath = path.join(process.cwd(), 'challenge-packs', 'pack-loader.js');
+let seedPacks: any = null;
+
+// Only load if the file exists
+if (fs.existsSync(packLoaderPath)) {
+  const packLoader = require(packLoaderPath);
+  seedPacks = packLoader.seed;
+} else {
+  console.log(`⚠️  Pack loader not found at: ${packLoaderPath}`);
+}
 
 export async function seed(knex: Knex): Promise<void> {
   console.log('\n🌱 Starting database seed...\n');
@@ -125,10 +135,14 @@ export async function seed(knex: Knex): Promise<void> {
   // - PACK=azure-fundamentals (only azure fundamentals)
   // - No PACK variable = load ALL available packs
   
-  // Pass knex instance to pack-loader so it doesn't close the connection
-  await seedPacks(knex);
-  
-  console.log('\n✅ Challenge packs loaded successfully!\n');
+  // Load challenge packs if available
+  if (seedPacks && typeof seedPacks === 'function') {
+    console.log('📦 Loading challenge packs...');
+    await seedPacks(knex);
+    console.log('\n✅ Challenge packs loaded successfully!\n');
+  } else {
+    console.log('⚠️  No challenge packs found or pack-loader not available\n');
+  }
 
   // Create achievements
   console.log('🏆 Creating achievements...');
