@@ -127,9 +127,6 @@ docker-compose up -d --build
 docker-compose down -v
 docker-compose up -d --build
 ```
-# For backend changes, verify database migrations:
-cd backend && npm run migrate
-```
 
 ## Commit Messages
 
