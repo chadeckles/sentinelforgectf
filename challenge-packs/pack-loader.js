@@ -20,9 +20,10 @@ try {
 
 /**
  * Hash a flag using the same method as backend seeds
+ * Flags are case-insensitive and trimmed before hashing
  */
 function hashFlag(flag) {
-  return crypto.createHash('sha256').update(flag).digest('hex');
+  return crypto.createHash('sha256').update(flag.toLowerCase().trim()).digest('hex');
 }
 
 /**
