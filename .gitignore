@@ -42,14 +42,14 @@ terraform.rc
 # Sensitive Terraform outputs
 terraform-outputs.json
 
-# Premium Challenge Packs (not for public distribution)
-# Keep only demo-pack public, ignore all others
-challenge-packs/*
-!challenge-packs/demo-pack/
-!challenge-packs/*.js
-!challenge-packs/*.md
-!challenge-packs/*.sh
-!challenge-packs/package.json
+# Challenge Packs
+# Premium packs are maintained in private repo
+# Users can add purchased packs to challenge-packs/ directory
+challenge-packs/azure-fundamentals/
+challenge-packs/cicd-pipeline/
+challenge-packs/container-security/
+challenge-packs/terraform-security/
+challenge-packs/identity-access/
 challenge-packs/dist/
 
 # IDEs
