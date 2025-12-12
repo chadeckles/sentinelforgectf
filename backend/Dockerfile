@@ -44,6 +44,9 @@ COPY tsconfig.knex.json ./
 COPY migrations ./migrations
 COPY seeds ./seeds
 
+# Copy challenge-packs from parent directory
+COPY ../challenge-packs ./challenge-packs
+
 # Create non-root user
 RUN addgroup -g 1001 -S sentinelforge && \
     adduser -u 1001 -S sentinelforge -G sentinelforge && \

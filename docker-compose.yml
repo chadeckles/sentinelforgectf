@@ -46,6 +46,7 @@ services:
       - sentinelforge-network
     volumes:
       - backend_logs:/var/log/sentinelforge
+      - ./challenge-packs:/opt/sentinelforge/backend/challenge-packs:ro
 
   # Frontend
   frontend:
