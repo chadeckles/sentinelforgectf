@@ -1,0 +1,35 @@
+{
+  "name": "Demo Pack",
+  "version": "1.0.0",
+  "description": "Free demonstration challenges showcasing various CTF categories and difficulty levels. Perfect for getting started with SentinelForge CTF!",
+  "author": "SentinelForge",
+  "category": "Mixed",
+  "difficulty_level": "beginner_to_advanced",
+  "challenge_count": 9,
+  "total_points": 1650,
+  "estimated_completion_time": "3-5 hours",
+  "prerequisites": [
+    "Basic cloud computing knowledge",
+    "Git fundamentals",
+    "Docker basics",
+    "Azure CLI familiarity (helpful but not required)"
+  ],
+  "learning_outcomes": [
+    "Understand cloud security fundamentals",
+    "Learn about git history and secret management",
+    "Apply DevSecOps best practices",
+    "Recognize CI/CD security vulnerabilities",
+    "Master container security concepts",
+    "Implement Infrastructure as Code security"
+  ],
+  "tags": [
+    "azure",
+    "cloud-security",
+    "devsecops",
+    "containers",
+    "iac",
+    "git",
+    "cicd",
+    "trivia"
+  ]
+}

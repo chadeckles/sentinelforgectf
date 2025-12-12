@@ -42,6 +42,16 @@ terraform.rc
 # Sensitive Terraform outputs
 terraform-outputs.json
 
+# Premium Challenge Packs (not for public distribution)
+# Keep only demo-pack public, ignore all others
+challenge-packs/*
+!challenge-packs/demo-pack/
+!challenge-packs/*.js
+!challenge-packs/*.md
+!challenge-packs/*.sh
+!challenge-packs/package.json
+challenge-packs/dist/
+
 # IDEs
 .vscode/
 .idea/

