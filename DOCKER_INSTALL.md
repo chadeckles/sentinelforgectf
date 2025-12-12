@@ -172,19 +172,38 @@ docker compose up -d --build
 # Database migrations run automatically on startup
 ```
 
-## Installing Challenge Packs
+## Challenge Packs
 
-SentinelForge is designed to work with installable challenge packs. To add new challenges:
+SentinelForge uses modular challenge packs stored as JSON files. The demo pack is included by default.
 
-1. **Purchase challenge pack** from [your-store-url]
-2. **Extract pack** to your system
-3. **Import challenges** via admin panel or API
-4. **Restart backend** if needed:
+### Loading Challenge Packs
+
+Challenge packs are automatically loaded when you run:
+```bash
+docker compose up -d
+```
+
+The database seed process loads all challenge packs from the `challenge-packs/` directory.
+
+### Adding More Challenge Packs
+
+1. **Place pack folder** in `challenge-packs/` directory
+2. **Validate the pack**:
    ```bash
-   docker compose restart backend
+   docker compose exec backend node /app/../challenge-packs/validate-packs.js
+   ```
+3. **Reseed database**:
+   ```bash
+   docker compose exec backend npm run db:seed
    ```
 
-More details: See [Challenge Pack Installation Guide](./docs/challenge-packs.md)
+### Creating Custom Packs
+
+See the **[Challenge Packs Guide](./docs/CHALLENGE_PACKS.md)** for complete instructions on:
+- Creating new challenge packs
+- Pack structure and schema
+- Validation and testing
+- Best practices
 
 ## Troubleshooting
 

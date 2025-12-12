@@ -36,9 +36,9 @@ We're a community-driven platform built for the builders and implementors — cl
 
 ### For Administrators
 - 🐳 **5-Minute Setup** - Docker Compose deployment with everything included
-- 🎮 **Flexible Challenge Types** - Q&A, repos, containers, IaC, CI/CD, multi-part, etc.
+- 📦 **Modular Challenge Packs** - JSON-based challenge definitions, easy to create and maintain
 - ⚙️ **Flexible Scoring** - Configurable points, hints, first blood bonuses
-- 🔧 **Easy Management** - Create challenges via database seeds
+- 🔧 **Easy Management** - Load challenge packs via seeds or create custom challenges
 - 💾 **Built-in Database** - PostgreSQL included, no external setup needed
 
 ## 🏗️ Architecture
@@ -114,8 +114,8 @@ git clone https://github.com/chadeckles/sentinelforgectf.git
 ## 📚 Documentation
 
 - **[Docker Installation](./DOCKER_INSTALL.md)** - Complete Docker setup guide
+- **[Challenge Packs Guide](./docs/CHALLENGE_PACKS.md)** - Creating and loading challenge packs ⭐
 - **[Admin Guide](./docs/ADMIN_GUIDE.md)** - Platform management and configuration
-- **[Challenge Creation](./docs/ADMIN_GUIDE.md#creating-challenges)** - How to create new challenges
 - **[API Reference](./docs/ADMIN_GUIDE.md#api-endpoints)** - Backend API documentation
 
 ## 🎮 Challenge Categories

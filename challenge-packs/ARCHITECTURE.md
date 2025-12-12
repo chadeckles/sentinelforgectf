@@ -52,11 +52,11 @@ node challenge-packs/validate-packs.js
 {
   "title": "Public Storage Exposure",
   "description": "Multi-line descriptions...",
-  "type": "terminal",
   "difficulty": "easy",
   "category": "Azure",
   "points": 100,
   "flag": "flag{publ1c_bl0bs_ar3_a_b1g_n0}",
+  "order_index": 0,
   "metadata": {
     "hints": [
       {"text": "Hint text here", "cost": 10}
@@ -67,6 +67,9 @@ node challenge-packs/validate-packs.js
     "learning_resources": [...]
   }
 }
+```
+
+**Note:** The `type` field was removed in December 2025. Challenges are now organized by `category` only, with optional `order_index` for custom ordering.
 ```
 
 ### 2. Create `pack-loader.js`
@@ -83,7 +86,10 @@ node challenge-packs/validate-packs.js
 
 ## Implementation Status
 1. ✅ Converted demo challenges to JSON
-2. ✅ Built pack-loader.js
+2. ✅ Built pack-loader.js (CommonJS, gracefully handles missing dbConfig)
 3. ✅ Built validator
-4. ✅ Created 6 challenge packs (40 total challenges)
+4. ✅ Created 6 challenge packs (64 total challenges)
 5. ✅ Documented for future packs
+6. ✅ Removed rigid `type` field constraint (Dec 2025)
+7. ✅ Added flexible `order_index` for custom challenge ordering
+8. ✅ Pack-loader works both standalone and from Knex seeds

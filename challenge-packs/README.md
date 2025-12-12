@@ -43,17 +43,27 @@ All premium packs expanded to 10-12 challenges with advanced topics:
 
 ## 🛠️ Usage
 
-### Validate Packs
+### For Users
+
+📚 **See [CHALLENGE_PACKS.md](../docs/CHALLENGE_PACKS.md) for complete user documentation** including:
+- How to load challenge packs
+- Creating custom packs
+- Challenge schema reference
+- Examples and troubleshooting
+
+### For Developers
+
+**Validate Packs**
 ```bash
 node validate-packs.js
 ```
 
-### Test Loading
+**Test Loading**
 ```bash
 node pack-loader.js
 ```
 
-### Integration
+**Integration**
 This repo is consumed by the main CTF platform:
 1. Pack loader dynamically reads challenge packs
 2. Backend seed script imports via pack-loader.js

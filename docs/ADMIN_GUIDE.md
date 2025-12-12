@@ -634,6 +634,38 @@ app.use(cors({
 
 ## Creating Challenges
 
+### Using Challenge Packs (Recommended)
+
+**SentinelForge uses a modular challenge pack system.** Instead of editing TypeScript seed files, create JSON-based challenge packs.
+
+📦 **See the [Challenge Packs Guide](./CHALLENGE_PACKS.md) for complete instructions** on:
+- Creating new challenge packs
+- Loading and validating packs
+- Challenge schema reference
+- Examples and best practices
+
+### Quick Challenge Pack Example
+
+```json
+[
+  {
+    "title": "Storage Misconfiguration",
+    "description": "Find the exposed data...",
+    "difficulty": "easy",
+    "category": "Cloud Security",
+    "points": 100,
+    "flag": "flag{your_flag_here}",
+    "metadata": {
+      "hints": [
+        {"text": "Check public access", "cost": 10}
+      ]
+    }
+  }
+]
+```
+
+Place this in `challenge-packs/my-pack/challenges.json` and run `npm run db:seed`.
+
 ### Challenge Categories
 
 Challenges are organized by security domain (displayed to users):
@@ -644,7 +676,7 @@ Challenges are organized by security domain (displayed to users):
 4. **Infrastructure as Code** - Terraform, ARM templates, and IaC security
 5. **DevSecOps** - CI/CD pipelines, secret scanning, supply chain security
 
-**Note:** The `type` field (qa, repo, terraform, container, etc.) is used internally for backend logic but is not displayed to users. Users filter and view challenges by `category`.
+**Note:** Challenges use the `category` field for organization and filtering. The legacy `type` field has been removed from the schema as of December 2025 to allow more flexible challenge pack design.
 
 ### Challenge Structure
 
@@ -657,7 +689,7 @@ Challenges are organized by security domain (displayed to users):
   difficulty: "easy",  // easy, medium, hard, expert
   points: 100,
   flag: "FLAG{SECRET_VALUE}",
-  type: "qa",  // Internal type (qa, repo, terraform, container, etc.) - used for backend logic
+  order_index: 0,  // Optional: custom ordering within category
   metadata: {
     // Challenge-specific data (terminals, files, hints, etc.)
   }
@@ -674,7 +706,6 @@ Challenges are organized by security domain (displayed to users):
   difficulty: "easy",
   points: 50,
   flag: "FLAG{GRS}",
-  type: "qa",  // Internal type for backend logic
   metadata: null,
   hints: [
     { text: "Think about Geo-Redundant options", penalty: 10 },
@@ -693,7 +724,6 @@ Challenges are organized by security domain (displayed to users):
   difficulty: "medium",
   points: 200,
   flag: "FLAG{STORAGE_KEY_abc123xyz}",
-  type: "container",  // Internal type for backend
   metadata: {
     terminalWindows: [
       {
@@ -739,7 +769,6 @@ Challenges are organized by security domain (displayed to users):
   difficulty: "hard",
   points: 300,
   flag: "FLAG{terraform_state_secrets}",
-  challenge_type: "terraform",
   metadata: {
     fileViewers: [
       {
@@ -797,7 +826,7 @@ await db('challenges').insert([
     difficulty: 'medium',
     points: 200,
     flag: 'FLAG{YOUR_FLAG}',
-    challenge_type: 'qa',
+    order_index: 0,
     metadata: null,
     hints: JSON.stringify([
       { text: 'Hint 1', penalty: 20 },
@@ -826,7 +855,7 @@ curl -X POST https://your-api.com/api/admin/challenges \
     "difficulty": "medium",
     "points": 200,
     "flag": "FLAG{SECRET}",
-    "challenge_type": "qa"
+    "order_index": 0
   }'
 ```
 
@@ -923,7 +952,7 @@ Response: 200 OK
     "category": "Cloud Security",
     "difficulty": "medium",
     "points": 200,
-    "challenge_type": "qa",
+    "order_index": 0,
     "metadata": { ... },
     "hints": [ ... ]
   }
@@ -1052,7 +1081,7 @@ Content-Type: application/json
   "difficulty": "medium",
   "points": 200,
   "flag": "FLAG{SECRET}",
-  "challenge_type": "qa",
+  "order_index": 0,
   "metadata": null
 }
 ```
