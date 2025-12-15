@@ -218,7 +218,7 @@ _*Available for purchase on Ko-fi_
 
 We believe CTF platforms should be accessible and available to everyone. We optionally have challenge packs for purchase and other content on Ko-Fi to facilitate your learning or to help you get up-and-running faster.
 
-**Try it!** Visit [https://sentinelforgectf.io/](#) to experience all base challenges online.
+**Try it!** Visit ➡️ [https://sentinelforgectf.io/](https://sentinelforgectf.io) to experience all base challenges online.
 
 ## 🙏 Acknowledgments
 
