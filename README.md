@@ -240,6 +240,6 @@ We believe CTF platforms should be accessible and available to everyone. We opti
 
 **Ready to level up your security skills? Let's go! 🚀**
 
-[Get Started](./DOCKER_INSTALL.md) | [View Demo Challenges](./backend/seeds/001_initial_data.ts) | [Contribute](./CONTRIBUTING.md)
+[Get Started](./DOCKER_INSTALL.md) | [View Demo Challenges](./challenge-packs/demo-pack/) | [Contribute](./CONTRIBUTING.md)
 
 </div>

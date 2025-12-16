@@ -813,7 +813,7 @@ Challenges are organized by security domain (displayed to users):
 
 #### Option 1: Seed File (Recommended for Development & Initial Setup)
 
-**File Location:** `/backend/seeds/001_initial_data.ts`
+**File Location:** `/challenge-packs/` - Challenges are now loaded from modular challenge packs. See `/challenge-packs/demo-pack/` for an example and `/challenge-packs/README.md` for documentation on the challenge pack architecture.
 
 Edit this file to add your challenges:
 
