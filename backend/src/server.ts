@@ -30,8 +30,12 @@ const PORT = process.env.PORT || 5000;
 
 // Security middleware
 app.use(helmet());
+
+// CORS configuration - origin must match the frontend URL (including port)
+const corsOrigin = process.env.CORS_ORIGIN || 'http://localhost';
+console.log('🔐 CORS Origin:', corsOrigin);
 app.use(cors({
-  origin: process.env.CORS_ORIGIN || 'http://localhost:3000',
+  origin: corsOrigin,
   credentials: true
 }));
 

@@ -525,7 +525,55 @@ In `backend/src/routes/challenge.routes.ts`:
 }))
 ```
 
-#### 3. Hint Not Persisting After Unlock
+#### 3. Changing Ports (Network Error on Login)
+
+**Problem:** After changing `BACKEND_PORT` or `FRONTEND_PORT` in `.env`, login results in a "Network Error"
+
+**Cause:** Port changes require updating multiple related configuration values and rebuilding the frontend container. The frontend's API URL is baked in at build time.
+
+**Solution:**
+
+When changing ports, you must update ALL related values in your `.env` file:
+
+```bash
+# Example: Using ports 3001 (backend) and 8080 (frontend)
+BACKEND_PORT=3001
+FRONTEND_PORT=8080
+
+# CORS_ORIGIN must include the port if not 80
+CORS_ORIGIN=http://localhost:8080
+
+# VITE_API_URL must match BACKEND_PORT
+VITE_API_URL=http://localhost:3001/api/v1
+```
+
+**Then rebuild and restart containers:**
+```bash
+# Stop all containers
+docker compose down
+
+# Rebuild images (required for VITE_API_URL change)
+docker compose build
+
+# Start with new configuration
+docker compose up -d
+```
+
+**Why this happens:**
+1. `CORS_ORIGIN` tells the backend which origins can make requests
+2. `VITE_API_URL` is compiled into the frontend JavaScript at build time
+3. Simply changing `.env` values without rebuilding won't update the frontend
+
+**Verify your configuration:**
+```bash
+# Check backend CORS setting
+docker compose logs backend | grep "CORS"
+
+# Check what API URL the frontend is using (in browser console)
+# Open browser DevTools > Console, look for "🔗 API Base URL:"
+```
+
+#### 4. Hint Not Persisting After Unlock
 
 **Problem:** Unlocked hint shows as locked after page refresh
 
@@ -554,7 +602,7 @@ const fetchUnlockedHints = async () => {
 };
 ```
 
-#### 4. Port Already in Use
+#### 5. Port Already in Use
 
 **Problem:** `Error: listen EADDRINUSE: address already in use :::3000`
 
@@ -571,9 +619,9 @@ taskkill /PID <PID> /F
 PORT=3001
 ```
 
-#### 5. Database Connection Refused
+#### 6. Database Connection Refused
 
-**PostgreSQL (Docker):**
+**PostgreSQL (Docker):
 ```bash
 # Check if container is running
 docker compose ps postgres
@@ -595,7 +643,7 @@ sudo systemctl status postgresql  # Linux
 brew services restart postgresql@14
 ```
 
-#### 6. JWT Token Invalid
+#### 7. JWT Token Invalid
 
 **Problem:** 401 Unauthorized errors
 
@@ -611,7 +659,7 @@ JWT_SECRET=<new_secret>
 npm run dev
 ```
 
-#### 7. Frontend Can't Reach Backend (CORS)
+#### 8. Frontend Can't Reach Backend (CORS)
 
 **Problem:** `Access-Control-Allow-Origin` error
 
